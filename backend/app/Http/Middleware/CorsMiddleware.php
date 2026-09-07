@@ -24,6 +24,9 @@ final readonly class CorsMiddleware implements MiddlewareInterface
             ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
             ->withHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Request-ID');
         return is_string($origin) && is_array($allowed) && in_array($origin, $allowed, true)
-            ? $response->withHeader('Access-Control-Allow-Origin', $origin) : $response;
+            ? $response
+                ->withHeader('Access-Control-Allow-Origin', $origin)
+                ->withHeader('Access-Control-Allow-Credentials', 'true')
+            : $response;
     }
 }

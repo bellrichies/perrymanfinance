@@ -18,6 +18,8 @@ use PerrymanFinance\Http\Middleware\SecurityHeadersMiddleware;
 use PerrymanFinance\Http\Router;
 use PerrymanFinance\Logging\JsonLogger;
 use PerrymanFinance\Logging\LoggerInterface;
+use PerrymanFinance\Services\Identity\NativeMailPasswordResetNotifier;
+use PerrymanFinance\Services\Identity\PasswordResetNotifierInterface;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
@@ -29,6 +31,7 @@ $container->instance(Container::class, $container);
 $container->singleton(ApiResponseFactory::class);
 $container->singleton(LoggerInterface::class, static fn (): LoggerInterface => new JsonLogger($config->string('logging.path')));
 $container->singleton(ConnectionInterface::class, PdoConnectionManager::class);
+$container->singleton(PasswordResetNotifierInterface::class, NativeMailPasswordResetNotifier::class);
 $container->singleton(MiddlewareDispatcher::class);
 
 /** @var MiddlewareDispatcher $dispatcher */

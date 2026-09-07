@@ -21,6 +21,18 @@ final class Environment
                 'env' => $env('APP_ENV', 'production'),
                 'debug' => $env('APP_DEBUG', 'false'),
                 'version' => $env('APP_VERSION', 'dev'),
+                'url' => rtrim($env('APP_URL', 'http://localhost:8090'), '/'),
+                'frontend_url' => rtrim($env('FRONTEND_URL', 'http://localhost:5173'), '/'),
+            ],
+            'auth' => [
+                'jwt_secret' => $env('JWT_SECRET'),
+                'access_ttl' => (int) $env('ACCESS_TOKEN_TTL', '900'),
+                'refresh_ttl' => (int) $env('REFRESH_TOKEN_TTL', '1209600'),
+                'reset_ttl' => (int) $env('PASSWORD_RESET_TTL', '3600'),
+                'cookie_secure' => $env('AUTH_COOKIE_SECURE', 'true'),
+                'login_limit' => (int) $env('AUTH_LOGIN_LIMIT', '5'),
+                'reset_limit' => (int) $env('AUTH_RESET_LIMIT', '3'),
+                'rate_window' => (int) $env('AUTH_RATE_WINDOW', '900'),
             ],
             'database' => [
                 'dsn' => $env('DB_DSN'), 'host' => $env('DB_HOST', '127.0.0.1'),
@@ -34,6 +46,7 @@ final class Environment
                 ))),
             ],
             'logging' => ['path' => $env('LOG_PATH', $basePath . '/storage/logs/app.log')],
+            'mail' => ['from' => $env('MAIL_FROM_ADDRESS')],
         ]);
     }
 }

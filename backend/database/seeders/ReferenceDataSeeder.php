@@ -41,5 +41,20 @@ final class ReferenceDataSeeder implements Seeder
                 'created_at' => $now, 'updated_at' => $now,
             ]);
         }
+        $assignments = [
+            'super_admin' => $permissions,
+            'content_admin' => array_values(array_filter($permissions, static fn (string $permission): bool => !in_array($permission, ['users.manage', 'audit.view'], true))),
+            'editor' => array_values(array_filter($permissions, static fn (string $permission): bool => str_starts_with($permission, 'pages.') || str_starts_with($permission, 'articles.') || $permission === 'faqs.manage')),
+            'viewer' => ['pages.view', 'investments.view', 'articles.view', 'enquiries.view'],
+        ];
+        $mappingStatement = $connection->prepare(
+            'INSERT IGNORE INTO role_permissions (role_id, permission_id, created_at) '
+            . 'SELECT r.id, p.id, :created_at FROM roles r CROSS JOIN permissions p WHERE r.name = :role AND p.name = :permission',
+        );
+        foreach ($assignments as $role => $grants) {
+            foreach ($grants as $permission) {
+                $mappingStatement->execute(['created_at' => $now, 'role' => $role, 'permission' => $permission]);
+            }
+        }
     }
 }

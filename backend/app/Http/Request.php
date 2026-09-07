@@ -46,7 +46,7 @@ final class Request
             }
         }
         $uri = parse_url(is_string($server['REQUEST_URI'] ?? null) ? $server['REQUEST_URI'] : '/', PHP_URL_PATH);
-        return new self(
+        $request = new self(
             strtoupper(is_string($server['REQUEST_METHOD'] ?? null) ? $server['REQUEST_METHOD'] : 'GET'),
             is_string($uri) ? $uri : '/',
             $headers,
@@ -55,6 +55,11 @@ final class Request
             $files,
             $rawBody,
         );
+        $remoteAddress = $server['REMOTE_ADDR'] ?? null;
+        if (is_string($remoteAddress) && filter_var($remoteAddress, FILTER_VALIDATE_IP)) {
+            $request->setAttribute('client_ip', $remoteAddress);
+        }
+        return $request;
     }
 
     public function method(): string

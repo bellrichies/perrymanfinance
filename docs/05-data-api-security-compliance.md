@@ -122,6 +122,29 @@ Frontend validation improves UX but does not replace backend validation.
 
 # 6. Security Model
 
+## Admin identity implementation
+
+The admin API uses a short-lived HMAC-SHA-256 access token in the `Authorization: Bearer` header and a rotating,
+opaque refresh token in a `Secure`, `HttpOnly`, `SameSite=Strict` cookie scoped to `/api/v1/admin/auth`. Access tokens
+are held in frontend memory only. Refresh and password-reset tokens are stored only as keyed SHA-256 hashes.
+
+Identity endpoints are:
+
+```text
+POST /api/v1/admin/auth/login
+POST /api/v1/admin/auth/refresh
+POST /api/v1/admin/auth/logout
+POST /api/v1/admin/auth/forgot-password
+POST /api/v1/admin/auth/reset-password
+GET  /api/v1/admin/auth/me
+```
+
+Login and reset requests use database-backed counters so throttling works on shared hosting without Redis. Configure
+`JWT_SECRET` with at least 32 random characters and keep `AUTH_COOKIE_SECURE=true` outside local HTTP development.
+Password reset delivery uses the host PHP mail transport in this phase; configure `MAIL_FROM_ADDRESS` and validate the
+provider's delivery setup and set `FRONTEND_URL` before production. Responses never contain reset tokens and unknown accounts receive the
+same response as known accounts.
+
 ## Authentication
 - secure password hashing;
 - access token expiration;
