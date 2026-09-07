@@ -15,7 +15,7 @@ export function configureApiAuth(hooks: AuthHooks | null) { authHooks = hooks; }
 export async function requestJson<T>(path: string, init: RequestInit = {}, retryAuth = true): Promise<T> {
   const headers = new Headers(init.headers);
   headers.set('Accept', 'application/json');
-  if (init.body) headers.set('Content-Type', 'application/json');
+  if (init.body && !(init.body instanceof FormData)) headers.set('Content-Type', 'application/json');
   const token = authHooks?.getAccessToken();
   if (token) headers.set('Authorization', `Bearer ${token}`);
   const response = await fetch(`${API_BASE_URL}${path}`, { ...init, headers, credentials: 'include' });

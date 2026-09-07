@@ -187,6 +187,14 @@ Set:
 
 # 7. File Upload Security
 
+The local CMS media implementation accepts decoded JPEG, PNG, and WebP images only. It rejects SVG and all executable
+formats, enforces `MEDIA_MAX_BYTES` and `MEDIA_MAX_DIMENSION`, generates random server filenames, stores files under
+`MEDIA_STORAGE_PATH` (outside the public document root by default), and returns metadata rather than executable URLs.
+Allowed structured page-section types are enforced by the backend. Legal and structured content is stripped to a
+small HTML tag allowlist and all HTML attributes are removed, preventing scripts, event handlers, styled payloads,
+embedded documents, and `javascript:` links.
+The hosting environment therefore requires the PHP Fileinfo and GD extensions in addition to JSON/PDO support.
+
 Requirements:
 - max file size;
 - MIME validation using server-side inspection;

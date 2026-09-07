@@ -24,4 +24,20 @@ describe('admin authentication', () => {
     expect(screen.getByRole('link', { name: 'Pages' })).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'Users' })).not.toBeInTheDocument();
   });
+
+  it('shows the page catalogue with loading and success states', async () => {
+    window.history.replaceState({}, '', '/admin/pages');
+    const user = { id: 'uuid', email: 'editor@example.test', display_name: 'Editor', roles: ['editor'], permissions: ['pages.view', 'pages.update'] };
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.endsWith('/admin/auth/refresh')) {
+        return new Response(JSON.stringify({ success: true, data: { user, access_token: 'access', token_type: 'Bearer', expires_in: 900 }, meta: {}, message: null }), { status: 200 });
+      }
+      return new Response(JSON.stringify({ success: true, data: [{ id: 1, uuid: 'page-uuid', title: 'About', slug: 'about', page_type: 'marketing', status: 'draft', excerpt: null, updated_at: '2026-09-07' }], meta: {}, message: null }), { status: 200 });
+    }));
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    render(<QueryClientProvider client={queryClient}><App /></QueryClientProvider>);
+    expect(await screen.findByRole('heading', { name: 'Pages' })).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: /about/i })).toHaveTextContent('draft');
+  });
 });

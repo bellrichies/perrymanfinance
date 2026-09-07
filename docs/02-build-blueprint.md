@@ -312,6 +312,31 @@ GET/POST/PATCH/DELETE  /admin/users
 GET                     /admin/audit-logs
 ```
 
+### Implemented CMS contract
+
+All paths below are relative to `/api/v1`. Admin endpoints require a Bearer access token and the indicated backend
+permission. Page writes embed an ordered `sections` list; accepted section types are enforced server-side.
+
+```text
+GET    /pages/{slug}
+GET    /legal/{slug}
+GET    /site-settings/public
+
+GET/POST           /admin/pages
+GET/PATCH/DELETE   /admin/pages/{uuid}
+GET/POST           /admin/legal-documents
+GET/PATCH/DELETE   /admin/legal-documents/{uuid}
+GET                /admin/settings
+PUT/DELETE         /admin/settings/{key}
+GET/POST           /admin/media
+PATCH/DELETE       /admin/media/{uuid}
+GET/PUT/DELETE     /admin/seo/{page|legal_document}/{ownerUuid}
+```
+
+Publishing is permitted only through valid `draft -> review -> published -> archived` transitions. Creating a new
+legal version inserts a new record and preserves the prior version. Public content queries return only published
+records (and effective legal versions) and omit internal actor/database identifiers.
+
 ---
 
 # 7. API Response Standard

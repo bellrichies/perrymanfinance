@@ -50,6 +50,30 @@ final class Router
     {
         $this->add('POST', $path, $handler, $middleware);
     }
+    /**
+     * @param callable|array{class-string, string} $handler
+     * @param list<class-string|object> $middleware
+     */
+    public function patch(string $path, callable|array $handler, array $middleware = []): void
+    {
+        $this->add('PATCH', $path, $handler, $middleware);
+    }
+    /**
+     * @param callable|array{class-string, string} $handler
+     * @param list<class-string|object> $middleware
+     */
+    public function put(string $path, callable|array $handler, array $middleware = []): void
+    {
+        $this->add('PUT', $path, $handler, $middleware);
+    }
+    /**
+     * @param callable|array{class-string, string} $handler
+     * @param list<class-string|object> $middleware
+     */
+    public function delete(string $path, callable|array $handler, array $middleware = []): void
+    {
+        $this->add('DELETE', $path, $handler, $middleware);
+    }
 
     /** @param list<class-string|object> $middleware */
     public function group(string $prefix, array $middleware, callable $routes): void

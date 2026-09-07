@@ -30,9 +30,10 @@ final class Request
     /**
      * @param array<string, mixed> $server
      * @param array<string, mixed> $query
+     * @param array<string, mixed> $form
      * @param array<string, mixed> $files
      */
-    public static function fromGlobals(array $server, array $query, array $files, string $rawBody): self
+    public static function fromGlobals(array $server, array $query, array $form, array $files, string $rawBody): self
     {
         $headers = [];
         foreach ($server as $key => $value) {
@@ -51,7 +52,7 @@ final class Request
             is_string($uri) ? $uri : '/',
             $headers,
             $query,
-            [],
+            $form,
             $files,
             $rawBody,
         );
