@@ -1,0 +1,9 @@
+parameters:
+    level: 8
+    paths:
+        - app
+        - public
+        - bin
+        - database
+        - tests
+    tmpDir: storage/phpstan

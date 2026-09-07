@@ -1,0 +1,17 @@
+.env
+backend/.env
+web/.env
+backend/vendor/
+backend/.phpunit.cache/
+backend/storage/phpstan/
+backend/storage/logs/*.log
+backend/storage/uploads/*
+!backend/storage/logs/.gitkeep
+!backend/storage/uploads/.gitkeep
+web/node_modules/
+web/dist/
+web/coverage/
+.idea/
+.vscode/
+*.swp
+.DS_Store
