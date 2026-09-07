@@ -170,7 +170,7 @@ final class ContentRepository extends AbstractRepository
 
     private function ownerColumn(string $type): string
     {
-        return $this->allowedIdentifier($type . '_id', ['page_id', 'legal_document_id']);
+        return $this->allowedIdentifier($type . '_id', ['page_id', 'legal_document_id', 'investment_opportunity_id']);
     }
 
     /**
