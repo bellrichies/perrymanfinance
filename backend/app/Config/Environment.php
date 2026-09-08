@@ -46,7 +46,7 @@ final class Environment
                 ))),
             ],
             'logging' => ['path' => $env('LOG_PATH', $basePath . '/storage/logs/app.log')],
-            'mail' => ['from' => $env('MAIL_FROM_ADDRESS')],
+            'mail' => ['from' => $env('MAIL_FROM_ADDRESS'), 'enquiries_to' => $env('ENQUIRY_NOTIFICATION_EMAIL')],
             'media' => [
                 'path' => $env('MEDIA_STORAGE_PATH') ?: $basePath . '/storage/uploads',
                 'max_bytes' => (int) $env('MEDIA_MAX_BYTES', '5242880'),

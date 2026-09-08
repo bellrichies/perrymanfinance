@@ -1,6 +1,6 @@
 # PerrymanFinance — Build Blueprint
 
-# 1. Development Strategy
+## 1. Development Strategy
 
 Build PerrymanFinance as a modular monolith with two application surfaces:
 
@@ -27,7 +27,7 @@ This reduces integration surprises.
 
 ---
 
-# 2. Repository Layout
+## 2. Repository Layout
 
 ```text
 perrymanfinance/
@@ -97,7 +97,7 @@ perrymanfinance/
 
 ---
 
-# 3. Backend Bootstrap
+## 3. Backend Bootstrap
 
 Build these primitives before domain features:
 
@@ -122,9 +122,10 @@ Avoid an oversized "BaseController" or "God Service".
 
 ---
 
-# 4. Initial Database Tables
+## 4. Initial Database Tables
 
-## Identity
+### Identity
+
 - admin_users
 - roles
 - permissions
@@ -134,40 +135,46 @@ Avoid an oversized "BaseController" or "God Service".
 - refresh_tokens
 - audit_logs
 
-## Content
+### Content
+
 - pages
 - page_sections
 - legal_documents
 - media_assets
 - site_settings
 
-## Investments
+### Investments
+
 - investment_categories
 - investment_opportunities
 
-## Insights
+### Insights
+
 - article_categories
 - articles
 - tags
 - article_tags
 
-## Enquiries
+### Enquiries
+
 - enquiries
 
-## SEO
+### SEO
+
 - seo_metadata
 - redirects
 
 Optional operational:
+
 - jobs
 - failed_jobs
 - rate_limit_counters if application-managed
 
 ---
 
-# 5. Content Model
+## 5. Content Model
 
-## Page
+### Page
 
 Suggested fields:
 
@@ -190,7 +197,7 @@ deleted_at
 
 `content_json` can store structured section configuration for editable marketing pages while important domain content remains normalized.
 
-## LegalDocument
+### LegalDocument
 
 ```text
 id
@@ -207,7 +214,7 @@ updated_by
 timestamps
 ```
 
-## InvestmentOpportunity
+### InvestmentOpportunity
 
 ```text
 id
@@ -233,7 +240,7 @@ timestamps
 
 Do not calculate or promise future returns in this table for MVP.
 
-## Article
+### Article
 
 ```text
 id
@@ -253,7 +260,7 @@ timestamps
 
 ---
 
-# 6. API Blueprint
+## 6. API Blueprint
 
 Base prefix:
 
@@ -261,7 +268,7 @@ Base prefix:
 /api/v1
 ```
 
-## Public
+### Public
 
 ```text
 GET  /health
@@ -283,7 +290,7 @@ POST /enquiries
 GET  /site-settings/public
 ```
 
-## Admin Authentication
+### Admin Authentication
 
 ```text
 POST /admin/auth/login
@@ -294,7 +301,7 @@ POST /admin/auth/reset-password
 GET  /admin/auth/me
 ```
 
-## Admin
+### Admin
 
 ```text
 GET/POST/PATCH/DELETE /admin/pages
@@ -312,7 +319,7 @@ GET/POST/PATCH/DELETE  /admin/users
 GET                     /admin/audit-logs
 ```
 
-### Implemented CMS contract
+#### Implemented CMS contract
 
 All paths below are relative to `/api/v1`. Admin endpoints require a Bearer access token and the indicated backend
 permission. Page writes embed an ordered `sections` list; accepted section types are enforced server-side.
@@ -324,6 +331,14 @@ GET    /site-settings/public
 
 GET/POST           /admin/pages
 GET/PATCH/DELETE   /admin/pages/{uuid}
+GET/POST           /admin/articles
+GET/PATCH/DELETE   /admin/articles/{uuid}
+POST               /admin/article-categories
+PATCH/DELETE       /admin/article-categories/{id}
+POST               /admin/tags
+PATCH/DELETE       /admin/tags/{id}
+GET/POST           /admin/faqs
+PATCH/DELETE       /admin/faqs/{id}
 GET/POST           /admin/legal-documents
 GET/PATCH/DELETE   /admin/legal-documents/{uuid}
 GET                /admin/settings
@@ -339,7 +354,7 @@ records (and effective legal versions) and omit internal actor/database identifi
 
 ---
 
-# 7. API Response Standard
+## 7. API Response Standard
 
 Success:
 
@@ -371,9 +386,9 @@ Server errors should not expose stack traces in production.
 
 ---
 
-# 8. Frontend Blueprint
+## 8. Frontend Blueprint
 
-## Public Layout
+### Public Layout
 
 ```text
 App
@@ -388,7 +403,7 @@ App
     └── Notifications
 ```
 
-## Public Pages
+### Public Pages
 
 - HomePage
 - AboutPage
@@ -405,7 +420,7 @@ App
 - LegalPage
 - NotFoundPage
 
-## Admin Pages
+### Admin Pages
 
 - LoginPage
 - DashboardPage
@@ -421,7 +436,7 @@ App
 
 ---
 
-# 9. Component System
+## 9. Component System
 
 Core primitives:
 
@@ -472,7 +487,7 @@ Admin:
 
 ---
 
-# 10. Development and Hosting Environment
+## 10. Development and Hosting Environment
 
 Required local tools/services:
 
@@ -508,9 +523,10 @@ make web-dev
 
 ---
 
-# 11. Coding Standards
+## 11. Coding Standards
 
-## PHP
+### PHP
+
 - strict types;
 - PSR-4;
 - PSR-12;
@@ -521,7 +537,8 @@ make web-dev
 - no global mutable state;
 - no business rules in route definitions.
 
-## React
+### React
+
 - functional components;
 - TypeScript preferred;
 - feature-oriented modules;
@@ -533,7 +550,7 @@ make web-dev
 
 ---
 
-# 12. Definition of Done for Every Feature
+## 12. Definition of Done for Every Feature
 
 A feature is complete only when:
 

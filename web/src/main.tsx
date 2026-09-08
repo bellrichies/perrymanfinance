@@ -13,6 +13,8 @@ const queryClient = new QueryClient({
   },
 });
 
+document.querySelectorAll('[data-prerender]').forEach(node => node.remove());
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>

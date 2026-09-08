@@ -9,7 +9,10 @@
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc -b --pretty false",
     "test": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "build:release": "npm run build && node scripts/prerender.mjs",
+    "test:e2e": "playwright test",
+    "test:prerender": "node scripts/test-prerender.mjs"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.13",
@@ -21,6 +24,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.63.0",
     "@testing-library/jest-dom": "^6.8.0",
     "@testing-library/react": "^16.3.0",
     "@types/node": "^24.3.1",

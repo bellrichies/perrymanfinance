@@ -19,3 +19,29 @@ button:focus-visible {
   outline-offset: 3px;
 }
 
+:focus-visible { outline: 3px solid #0d9488; outline-offset: 4px; }
+.public-site { line-height: 1.65; }
+.public-site a { text-underline-offset: 5px; }
+.public-site a:hover { text-decoration: underline; }
+.public-site nav a[aria-current="page"] { text-decoration: underline; text-decoration-color: #6ee7b7; }
+.skip-link { position: absolute; left: 1rem; top: -100px; z-index: 100; padding: 1rem; background: white; color: #07192f; }
+.skip-link:focus { top: 1rem; }
+.section-wrap { width: 100%; max-width: 1152px; margin-inline: auto; padding: 4rem 1.25rem; }
+.eyebrow { font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .17em; color: #08705c; }
+.hero .eyebrow { color: #a7f3d0; }
+.hero::after { content: ''; position: absolute; width: 650px; height: 650px; right: -260px; top: 0; border: 1px solid #ffffff18; border-radius: 50%; box-shadow: 0 0 0 70px #ffffff05, 0 0 0 140px #ffffff03; }
+.button { display: inline-flex; align-items: center; justify-content: center; border-radius: .3rem; background: #123f69; color: white; padding: .8rem 1.4rem; font-weight: 600; }
+.button-light { background: #b8eadc; color: #07192f; }
+button { cursor: pointer; }
+button:disabled { opacity: .55; cursor: not-allowed; }
+.form-control { display: block; width: 100%; margin-top: .5rem; padding: .7rem; border: 1px solid #94a3b8; border-radius: .3rem; background: white; }
+.rich-text { overflow-wrap: anywhere; }
+.rich-text p, .rich-text ul, .rich-text ol { margin-bottom: 1rem; }
+.rich-text ul { list-style: disc; padding-left: 1.5rem; }
+.rich-text ol { list-style: decimal; padding-left: 1.5rem; }
+.rich-text h2 { font-size: 1.6rem; margin-block: 1.8rem 1rem; font-weight: 600; }
+.rich-text h3 { font-size: 1.3rem; margin-block: 1.5rem .75rem; font-weight: 600; }
+.skeleton { border-radius: .3rem; background: #cbd5e1; animation: pulse 1.5s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .5; } }
+@media (min-width: 768px) { .section-wrap { padding-block: 5rem; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; scroll-behavior: auto !important; transition: none !important; } }
