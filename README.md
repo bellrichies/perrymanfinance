@@ -95,7 +95,8 @@ php backend/bin/seed.php
 
 Migrations run in deterministic filename order and are recorded in `schema_migrations`. Rollback is always explicit;
 production rollback additionally requires `--force`. There is intentionally no reset or fresh command. Seeders are
-restricted to `local`, `development`, and `testing` environments and contain reference roles and permissions only.
+restricted to `local`, `development`, and `testing` environments and contain reference roles, permissions, safe public
+CMS starter pages, page sections, SEO metadata, public settings, and clearly marked legal placeholders.
 Configure a least-privilege database user and take a verified backup before production migrations.
 
 The equivalent Composer/npm/PHP commands are defined directly in the [Makefile](./Makefile).

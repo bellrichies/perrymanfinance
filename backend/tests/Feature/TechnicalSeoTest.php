@@ -79,11 +79,11 @@ final class TechnicalSeoTest extends TestCase
     private function seedContent(): void
     {
         $now = '2026-09-08 00:00:00.000000';
-        $this->pdo->exec("INSERT INTO pages (id,uuid,title,slug,status,updated_at,deleted_at) VALUES
-            (1,'home','Home','home','published','{$now}',NULL),
-            (2,'about','About','about','published','{$now}',NULL),
-            (3,'draft','Draft','draft-page','draft','{$now}',NULL),
-            (4,'noindex','Noindex','noindex-page','published','{$now}',NULL)");
+        $this->pdo->exec("INSERT INTO pages (id,uuid,title,slug,status,published_at,updated_at,deleted_at) VALUES
+            (1,'home','Home','home','published','{$now}','{$now}',NULL),
+            (2,'about','About','about','published','{$now}','{$now}',NULL),
+            (3,'draft','Draft','draft-page','draft',NULL,'{$now}',NULL),
+            (4,'noindex','Noindex','noindex-page','published','{$now}','{$now}',NULL)");
         $this->pdo->exec("INSERT INTO legal_documents (id,title,slug,status,effective_at,updated_at) VALUES
             (1,'Risk','risk-disclosure','published','{$now}','{$now}')");
         $this->pdo->exec("INSERT INTO investment_opportunities (id,title,slug,status,published_at,updated_at,deleted_at) VALUES
@@ -105,7 +105,7 @@ final class TechnicalSeoTest extends TestCase
     private function createSchema(): void
     {
         foreach ([
-            'CREATE TABLE pages (id INTEGER PRIMARY KEY AUTOINCREMENT,uuid TEXT,title TEXT,slug TEXT,status TEXT,updated_at TEXT,deleted_at TEXT)',
+            'CREATE TABLE pages (id INTEGER PRIMARY KEY AUTOINCREMENT,uuid TEXT,title TEXT,slug TEXT,status TEXT,published_at TEXT,updated_at TEXT,deleted_at TEXT)',
             'CREATE TABLE legal_documents (id INTEGER PRIMARY KEY AUTOINCREMENT,title TEXT,slug TEXT,status TEXT,effective_at TEXT,updated_at TEXT)',
             'CREATE TABLE investment_opportunities (id INTEGER PRIMARY KEY AUTOINCREMENT,title TEXT,slug TEXT,status TEXT,published_at TEXT,updated_at TEXT,deleted_at TEXT)',
             'CREATE TABLE articles (id INTEGER PRIMARY KEY AUTOINCREMENT,title TEXT,slug TEXT,status TEXT,published_at TEXT,updated_at TEXT,deleted_at TEXT)',

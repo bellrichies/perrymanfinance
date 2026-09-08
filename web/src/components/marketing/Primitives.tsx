@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import heroImage from '../../assets/a.jpg';
+import heroImageWebp from '../../assets/a.webp';
 
 export function LoadingSkeleton() {
   return <div role="status" aria-live="polite" className="space-y-5 py-12"><span className="sr-only">Loading content</span><div className="skeleton h-10 w-2/3" /><div className="skeleton h-5 w-full" /><div className="skeleton h-5 w-4/5" /></div>;
@@ -28,7 +29,7 @@ export function SectionHeader({ title, eyebrow }: { title: string; eyebrow?: str
 }
 
 export function HeroSection({ title, body, eyebrow }: { title: string; body?: string | null; eyebrow?: string }) {
-  return <section className="hero relative overflow-hidden bg-[#07192f] text-white"><img src={heroImage} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover opacity-30" loading="eager" /><div className="absolute inset-0 bg-[#07192f]/80" /><div className="relative z-10 mx-auto max-w-6xl px-5 py-20 sm:py-28"><div className="max-w-3xl">{eyebrow && <p className="eyebrow text-emerald-200">{eyebrow}</p>}<h1 className="mt-4 text-4xl font-semibold leading-tight tracking-tight sm:text-6xl">{title}</h1><div className="mt-7 max-w-2xl text-lg leading-relaxed text-slate-300"><RichText html={body} /></div><div className="mt-9 flex flex-wrap gap-4"><Link className="button button-light" to="/contact">Request Information</Link><Link className="inline-flex items-center px-3 py-3 font-medium" to="/investment-solutions">Explore solutions <span aria-hidden="true" className="ml-3">-&gt;</span></Link></div></div></div></section>;
+  return <section className="hero relative overflow-hidden bg-[#07192f] text-white"><picture><source srcSet={heroImageWebp} type="image/webp" /><img src={heroImage} alt="" aria-hidden="true" width={1600} height={900} className="absolute inset-0 h-full w-full object-cover opacity-30" loading="eager" decoding="async" fetchPriority="high" /></picture><div className="absolute inset-0 bg-[#07192f]/80" /><div className="relative z-10 mx-auto max-w-6xl px-5 py-20 sm:py-28"><div className="max-w-3xl">{eyebrow && <p className="eyebrow text-emerald-200">{eyebrow}</p>}<h1 className="mt-4 text-4xl font-semibold leading-tight tracking-tight sm:text-6xl">{title}</h1><div className="mt-7 max-w-2xl text-lg leading-relaxed text-slate-300"><RichText html={body} /></div><div className="mt-9 flex flex-wrap gap-4"><Link className="button button-light" to="/contact">Request Information</Link><Link className="inline-flex items-center px-3 py-3 font-medium" to="/investment-solutions">Explore solutions <span aria-hidden="true" className="ml-3">-&gt;</span></Link></div></div></div></section>;
 }
 
 function safePublicPath(value: unknown): string | null {

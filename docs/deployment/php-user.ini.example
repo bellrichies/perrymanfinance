@@ -1,0 +1,18 @@
+; Copy supported directives into the hosting control panel or a provider-approved .user.ini.
+; Do not commit environment secrets or provider credentials here.
+
+display_errors=0
+log_errors=1
+expose_php=0
+upload_max_filesize=5M
+post_max_size=6M
+max_execution_time=30
+memory_limit=256M
+
+opcache.enable=1
+opcache.enable_cli=0
+opcache.validate_timestamps=0
+opcache.max_accelerated_files=20000
+opcache.memory_consumption=128
+opcache.interned_strings_buffer=16
+opcache.save_comments=1

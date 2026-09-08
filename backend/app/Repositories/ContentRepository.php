@@ -17,9 +17,9 @@ final class ContentRepository extends AbstractRepository
     /** @return array<string, mixed>|null */
     public function page(string $uuid, bool $public = false): ?array
     {
-        $sql = 'SELECT * FROM pages WHERE ' . ($public ? 'slug = :key AND status = \'published\'' : 'uuid = :key')
+        $sql = 'SELECT * FROM pages WHERE ' . ($public ? 'slug = :key AND status = \'published\' AND published_at IS NOT NULL AND published_at <= :now' : 'uuid = :key')
             . ' AND deleted_at IS NULL LIMIT 1';
-        $row = $this->execute($sql, ['key' => $uuid])->fetch();
+        $row = $this->execute($sql, $public ? ['key' => $uuid, 'now' => gmdate('Y-m-d H:i:s.u')] : ['key' => $uuid])->fetch();
         if (!is_array($row)) {
             return null;
         }
@@ -171,9 +171,9 @@ final class ContentRepository extends AbstractRepository
     /** @return list<array<string, mixed>> */
     public function sitemapEntries(string $now): array
     {
-        $sql = "SELECT 'page' AS type,p.slug,p.title,p.updated_at,s.meta_title,s.meta_description,s.canonical_url,s.robots,s.open_graph_json
+            $sql = "SELECT 'page' AS type,p.slug,p.title,p.updated_at,s.meta_title,s.meta_description,s.canonical_url,s.robots,s.open_graph_json
             FROM pages p LEFT JOIN seo_metadata s ON s.page_id=p.id
-            WHERE p.deleted_at IS NULL AND p.status='published'
+            WHERE p.deleted_at IS NULL AND p.status='published' AND p.published_at IS NOT NULL AND p.published_at<=:now_page
             UNION ALL
             SELECT 'legal_document' AS type,l.slug,l.title,l.updated_at,s.meta_title,s.meta_description,s.canonical_url,s.robots,s.open_graph_json
             FROM legal_documents l LEFT JOIN seo_metadata s ON s.legal_document_id=l.id
@@ -187,7 +187,7 @@ final class ContentRepository extends AbstractRepository
             FROM articles a LEFT JOIN seo_metadata s ON s.article_id=a.id
             WHERE a.deleted_at IS NULL AND a.status='published' AND a.published_at IS NOT NULL AND a.published_at<=:now_article";
 
-        return array_values(array_map(fn (array $row): array => $this->decodeSeoEntry($row), $this->execute($sql, ['now_legal' => $now, 'now_investment' => $now, 'now_article' => $now])->fetchAll()));
+        return array_values(array_map(fn (array $row): array => $this->decodeSeoEntry($row), $this->execute($sql, ['now_page' => $now, 'now_legal' => $now, 'now_investment' => $now, 'now_article' => $now])->fetchAll()));
     }
 
     /** @return list<array<string, mixed>> */

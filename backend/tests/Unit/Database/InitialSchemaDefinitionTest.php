@@ -12,7 +12,7 @@ final class InitialSchemaDefinitionTest extends TestCase
     public function testAllRequiredTablesAreDefinedWithMySqlStorageRequirements(): void
     {
         $directory = dirname(__DIR__, 3) . '/database/migrations';
-        self::assertCount(7, (new MigrationRegistry($directory))->all());
+        self::assertCount(8, (new MigrationRegistry($directory))->all());
         $contents = '';
         foreach (glob($directory . '/*.php') ?: [] as $file) {
             $contents .= (string) file_get_contents($file);

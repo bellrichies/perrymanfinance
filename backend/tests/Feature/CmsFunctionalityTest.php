@@ -59,6 +59,15 @@ final class CmsFunctionalityTest extends TestCase
         self::assertSame('About', $this->cms->page('about', true)['title']);
     }
 
+    public function testFuturePublishedPageIsNotVisible(): void
+    {
+        $this->pdo->exec("INSERT INTO pages (uuid,title,slug,page_type,status,excerpt,content_json,published_at,created_by,updated_by,created_at,updated_at) VALUES ('future','Future','future','marketing','published','Future content',NULL,'2999-01-01 00:00:00.000000',1,1,'2026-09-08 00:00:00.000000','2026-09-08 00:00:00.000000')");
+
+        $this->expectException(NotFoundException::class);
+        $this->cms->page('future', true);
+    }
+
+
     public function testLegalVersionUpdatesAndScriptsAreRemoved(): void
     {
         $legal = $this->cms->saveLegal(null, [

@@ -12,6 +12,8 @@ Home uses these ordered slots: `hero`, `positioning`, `services`, `philosophy`, 
 
 Public site settings: `risk_statement`, `contact_details`, and `enquiry_consent` are CMS-sanitized strings. Business and counsel must approve their content before publication. Contact submission is unavailable until public consent wording and an effective published privacy policy exist. Images remain dependent on the existing secure media-delivery work; private storage paths are not exposed as public image URLs.
 
+The local/development `PublicContentSeeder` creates the required public page records, ordered page sections, SEO metadata, public settings, and clearly marked legal placeholders so the frontend can load all documented routes after `php backend/bin/seed.php`. Seeded legal and financial-adjacent copy is not production-approved content and must be replaced or reviewed before release.
+
 ## Enquiry API
 
 `POST /api/v1/enquiries` accepts `name` (160), `email` (254), optional `phone` (40), `enquiry_type` (`general`, `consultation`, `investment`), `subject` (255), `message` (5000), optional `source_page` (500), boolean `consent`, and honeypot `website`.
