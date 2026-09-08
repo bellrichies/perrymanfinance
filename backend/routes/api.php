@@ -10,11 +10,15 @@ use PerrymanFinance\Http\Controllers\InvestmentController;
 use PerrymanFinance\Http\Controllers\InsightController;
 use PerrymanFinance\Http\Controllers\EnquiryController;
 use PerrymanFinance\Http\Controllers\AdminEnquiryController;
+use PerrymanFinance\Http\Controllers\SeoController;
 use PerrymanFinance\Http\Middleware\AuthMiddleware;
 use PerrymanFinance\Http\Middleware\PermissionMiddleware;
 use PerrymanFinance\Http\Router;
 
 return static function (Router $router): void {
+    $router->get('/sitemap.xml', [SeoController::class, 'sitemap']);
+    $router->get('/robots.txt', [SeoController::class, 'robots']);
+
     $router->group('/api/v1', [], static function (Router $router): void {
         $router->get('/health', [HealthController::class, 'show']);
         $router->post('/enquiries', [EnquiryController::class, 'create']);
@@ -29,6 +33,10 @@ return static function (Router $router): void {
         $router->get('/insight-categories', [InsightController::class, 'categories']);
         $router->get('/tags', [InsightController::class, 'tags']);
         $router->get('/faq', [InsightController::class, 'publicFaq']);
+        $router->get('/sitemap.xml', [SeoController::class, 'sitemap']);
+        $router->get('/robots.txt', [SeoController::class, 'robots']);
+        $router->get('/seo/sitemap', [SeoController::class, 'sitemapIndex']);
+        $router->get('/seo/redirect', [SeoController::class, 'redirect']);
         $router->group('/admin/auth', [], static function (Router $router): void {
             $router->post('/login', [AdminAuthController::class, 'login']);
             $router->post('/refresh', [AdminAuthController::class, 'refresh']);

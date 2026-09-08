@@ -15,6 +15,7 @@ use PerrymanFinance\Http\Exceptions\ValidationException;
 use PerrymanFinance\Repositories\AuditLogRepository;
 use PerrymanFinance\Repositories\ContentRepository;
 use PerrymanFinance\Repositories\InsightRepository;
+use PerrymanFinance\Services\Seo\SeoService;
 
 final readonly class InsightService
 {
@@ -25,6 +26,7 @@ final readonly class InsightService
         private PublicationWorkflow $workflow,
         private TransactionManager $transactions,
         private AuditLogRepository $audit,
+        private SeoService $seoService,
     ) {
     }
 
@@ -170,6 +172,14 @@ final readonly class InsightService
                 $id = $existing === null ? $this->insights->insertArticle($record) : (int) $existing['id'];
                 if ($existing !== null) {
                     $this->insights->updateArticle($id, $record);
+                    if ($existing['status'] === 'published' && $record['status'] === 'published' && $existing['slug'] !== $record['slug']) {
+                        $this->seoService->recordRedirect(
+                            '/insights/' . (string) $existing['slug'],
+                            '/insights/' . (string) $record['slug'],
+                            $actor,
+                            $record['now'],
+                        );
+                    }
                 }
                 $this->insights->replaceArticleTags($id, $tagIds, $record['now']);
                 if (is_array($input['seo'] ?? null)) {
@@ -264,7 +274,11 @@ final readonly class InsightService
         if (!in_array($robots, ['index,follow', 'noindex,follow', 'noindex,nofollow'], true)) {
             throw new ValidationException(['seo.robots' => ['Select a valid robots directive.']]);
         }
-        return ['title' => $this->string($input, 'meta_title', 255), 'description' => $this->string($input, 'meta_description', 500), 'canonical' => $this->optional($input, 'canonical_url', 2048), 'robots' => $robots, 'og' => json_encode($input['open_graph'] ?? null, JSON_THROW_ON_ERROR), 'social' => $this->nullablePositiveInt($input['social_media_id'] ?? null), 'now' => $now];
+        $canonical = $this->optional($input, 'canonical_url', 2048);
+        if ($canonical !== null && filter_var($canonical, FILTER_VALIDATE_URL) === false) {
+            throw new ValidationException(['seo.canonical_url' => ['Enter a valid absolute URL.']]);
+        }
+        return ['title' => $this->string($input, 'meta_title', 255), 'description' => $this->string($input, 'meta_description', 500), 'canonical' => $canonical, 'robots' => $robots, 'og' => json_encode($input['open_graph'] ?? null, JSON_THROW_ON_ERROR), 'social' => $this->nullablePositiveInt($input['social_media_id'] ?? null), 'now' => $now];
     }
 
     /** @return list<int> */

@@ -44,6 +44,7 @@ const server = await preview({ preview: { host: '127.0.0.1', port: 4178, strictP
 const browser = await chromium.launch({ channel: 'chromium' });
 const template = await readFile('dist/index.html', 'utf8');
 const sitemap = [];
+const xml = (value) => String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&apos;');
 try {
   for (const [route, seo] of [...routes, ['/404', null]]) {
     if (route !== '/404' && (!seo?.meta_title || !seo?.meta_description)) throw new Error(`Missing approved SEO metadata: ${route}`);
@@ -72,10 +73,10 @@ try {
     const file = route === '/404' ? 'dist/404.html' : path.join('dist', route.slice(1), 'index.html');
     await mkdir(path.dirname(file), { recursive: true });
     await writeFile(file, html);
-    if (!robots?.includes('noindex') && route !== '/404') sitemap.push(canonical);
+    if (!robots?.includes('noindex') && route !== '/404') sitemap.push({ loc: canonical });
     await page.close();
   }
-  await writeFile('dist/sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${sitemap.map(url => `<url><loc>${url}</loc></url>`).join('')}</urlset>`);
+  await writeFile('dist/sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${sitemap.map(item => `<url><loc>${xml(item.loc)}</loc></url>`).join('')}</urlset>`);
   await writeFile('dist/robots.txt', `User-agent: *\nDisallow: /admin\nSitemap: ${site.replace(/\/$/, '')}/sitemap.xml\n`);
   console.log(`Prerendered ${routes.size + 1} public routes.`);
 } finally {

@@ -12,6 +12,7 @@ const server = createServer((request, response) => {
   if (url.pathname.includes('/pages/')) data = { title: 'Test publication', slug, sections: [{ type: 'rich_text', content: { heading: 'Test section', body: '<p>Published fixture body.</p>' } }], seo };
   else if (url.pathname.includes('/legal/')) data = { title: 'Test legal publication', content: '<p>Test legal content only.</p>', version: '1', seo };
   else if (url.pathname.endsWith('/site-settings/public')) data = { risk_statement: '<p>Fixture risk statement.</p>', enquiry_consent: 'Fixture consent.' };
+  else if (url.pathname.endsWith('/faq')) data = [{ id: 1, question: 'Fixture question?', answer: '<p>Fixture answer.</p>', category: null, position: 1, status: 'published' }];
   else if (url.pathname.endsWith('/investments')) data = [{ uuid: 'test', slug: 'test-opportunity', title: 'Test opportunity', category_name: 'Research', risk_classification: 'high', short_description: 'Fixture catalogue information.' }];
   else if (slug === 'test-opportunity') data = { uuid: 'test', slug, title: 'Test opportunity', category_name: 'Research', risk_classification: 'high', disclaimer: '<p>Test risk content.</p>', full_description: '<p>Test opportunity detail.</p>', seo };
   else if (url.pathname.endsWith('/insights')) data = [{ uuid: 'article', slug: 'test-insight', title: 'Test insight', tags: [] }];
@@ -29,6 +30,11 @@ try {
   assert.match(html, /rel="canonical" href="https:\/\/example.test\/about"/);
   const detail = await readFile('dist/investments/test-opportunity/index.html', 'utf8');
   assert.match(detail, /Test opportunity detail/);
+  const article = await readFile('dist/insights/test-insight/index.html', 'utf8');
+  assert.match(article, /"@type":"Article"/);
+  assert.match(article, /name="twitter:title" content="Test publication"/);
+  const faq = await readFile('dist/faq/index.html', 'utf8');
+  assert.match(faq, /"@type":"FAQPage"/);
   const sitemap = await readFile('dist/sitemap.xml', 'utf8');
   assert.match(sitemap, /investments\/test-opportunity/);
   assert.doesNotMatch(sitemap, /test-insight|\/admin|\/404/);

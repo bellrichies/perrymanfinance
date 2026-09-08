@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { PublicLayout } from '../../components/marketing/PublicLayout';
 import { Breadcrumb, CTASection, EmptyState, ErrorState, HeroSection, LoadingSkeleton, ProcessSteps, RichText, SectionHeader, ServiceCard } from '../../components/marketing/Primitives';
 import type { PageSection } from '../content/cmsService';
@@ -60,5 +61,14 @@ export function LegalPage({ slug, title }: { slug: string; title: string }) {
   return <PublicLayout><Metadata title={document?.title ?? title} seo={document?.seo} unavailable={!document} /><main id="content" tabIndex={-1} className="section-wrap max-w-4xl"><Breadcrumb title={title} /><h1 className="text-4xl font-semibold">{document?.title ?? title}</h1>{query.isPending ? <LoadingSkeleton /> : query.isError ? <ErrorState retry={() => void query.refetch()} /> : document ? <><p className="my-6 text-sm text-slate-600">Version {document.version}{document.effective_at ? ` · Effective ${document.effective_at.slice(0, 10)}` : ''}</p><RichText html={document.content} /></> : <EmptyState />}</main></PublicLayout>;
 }
 export function NotFoundPage() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const redirect = useQuery({ queryKey: ['redirect', location.pathname], queryFn: ({ signal }) => publicService.redirect(location.pathname, signal), retry: false });
+  useEffect(() => {
+    if (redirect.data?.data.destination_path) {
+      navigate(redirect.data.data.destination_path, { replace: true });
+    }
+  }, [navigate, redirect.data]);
+
   return <PublicLayout><Metadata title="Page not found" unavailable /><main id="content" tabIndex={-1} className="section-wrap py-28"><p className="eyebrow">404</p><h1 className="mt-4 text-4xl font-semibold">Page not found</h1><p className="mt-5 text-slate-600">The page may have moved or is no longer available.</p><Link className="button mt-8" to="/">Return home</Link></main></PublicLayout>;
 }

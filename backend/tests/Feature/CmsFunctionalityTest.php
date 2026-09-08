@@ -18,6 +18,7 @@ use PerrymanFinance\Repositories\ContentRepository;
 use PerrymanFinance\Repositories\MediaRepository;
 use PerrymanFinance\Services\Content\CmsService;
 use PerrymanFinance\Services\Content\MediaService;
+use PerrymanFinance\Services\Seo\SeoService;
 use PHPUnit\Framework\TestCase;
 use Tests\Support\ApplicationFactory;
 use Tests\Support\SqliteConnection;
@@ -39,6 +40,7 @@ final class CmsFunctionalityTest extends TestCase
             new PublicationWorkflow(),
             new TransactionManager($this->connection),
             new AuditLogRepository($this->connection),
+            new SeoService(new ContentRepository($this->connection), new Config(['app' => ['env' => 'testing', 'frontend_url' => 'https://example.test']])),
         );
     }
 
@@ -86,6 +88,25 @@ final class CmsFunctionalityTest extends TestCase
         self::assertSame('About', $this->cms->seo('page', (string) $page['uuid'])['open_graph']['title']);
     }
 
+    public function testPublishedPageRenameCreatesRedirect(): void
+    {
+        $draft = $this->cms->savePage(null, $this->pageInput('draft'), 1, null);
+        $review = $this->cms->savePage((string) $draft['uuid'], $this->pageInput('review'), 1, null);
+        $this->cms->savePage((string) $review['uuid'], $this->pageInput('published'), 1, null);
+        $renamed = $this->pageInput('published');
+        $renamed['slug'] = 'about-perryman';
+
+        $this->cms->savePage((string) $review['uuid'], $renamed, 1, null);
+
+        $statement = $this->pdo->query("SELECT destination_path,status_code FROM redirects WHERE source_path='/about'");
+        self::assertInstanceOf(\PDOStatement::class, $statement);
+        $redirect = $statement->fetch();
+        self::assertIsArray($redirect);
+        self::assertSame('/about-perryman', $redirect['destination_path']);
+        self::assertSame(301, (int) $redirect['status_code']);
+    }
+
+
     public function testInvalidMediaUploadIsRejected(): void
     {
         $service = new MediaService(
@@ -129,6 +150,7 @@ final class CmsFunctionalityTest extends TestCase
             'CREATE TABLE site_settings (id INTEGER PRIMARY KEY AUTOINCREMENT,setting_key TEXT UNIQUE,value_json TEXT,is_public INTEGER,updated_by INTEGER,created_at TEXT,updated_at TEXT)',
             'CREATE TABLE media_assets (id INTEGER PRIMARY KEY AUTOINCREMENT,uuid TEXT UNIQUE,disk TEXT,path TEXT,original_name TEXT,mime_type TEXT,byte_size INTEGER,width INTEGER,height INTEGER,alt_text TEXT,uploaded_by INTEGER,created_at TEXT,updated_at TEXT,deleted_at TEXT)',
             'CREATE TABLE seo_metadata (id INTEGER PRIMARY KEY AUTOINCREMENT,page_id INTEGER UNIQUE,legal_document_id INTEGER UNIQUE,investment_opportunity_id INTEGER,article_id INTEGER,meta_title TEXT,meta_description TEXT,canonical_url TEXT,robots TEXT,open_graph_json TEXT,social_media_id INTEGER,created_at TEXT,updated_at TEXT)',
+            'CREATE TABLE redirects (id INTEGER PRIMARY KEY AUTOINCREMENT,source_path TEXT UNIQUE,destination_path TEXT,status_code INTEGER,is_active INTEGER,created_by INTEGER,created_at TEXT,updated_at TEXT)',
             'CREATE TABLE audit_logs (id INTEGER PRIMARY KEY AUTOINCREMENT,actor_id INTEGER,event TEXT,subject_type TEXT,subject_id TEXT,request_id TEXT,ip_address TEXT,before_json TEXT,after_json TEXT,created_at TEXT)',
             ] as $sql
         ) {

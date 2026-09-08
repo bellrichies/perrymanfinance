@@ -13,6 +13,7 @@ use PerrymanFinance\Http\Exceptions\NotFoundException;
 use PerrymanFinance\Http\Exceptions\ValidationException;
 use PerrymanFinance\Repositories\AuditLogRepository;
 use PerrymanFinance\Repositories\ContentRepository;
+use PerrymanFinance\Services\Seo\SeoService;
 
 final readonly class CmsService
 {
@@ -22,6 +23,7 @@ final readonly class CmsService
         private PublicationWorkflow $workflow,
         private TransactionManager $transactions,
         private AuditLogRepository $audit,
+        private SeoService $seo,
     ) {
     }
 
@@ -74,12 +76,20 @@ final readonly class CmsService
             'actor' => $actor, 'now' => $now,
         ];
         $savedUuid = $record['uuid'];
-        $this->transactions->run(function () use ($existing, $record, $sections, $actor, $requestId): void {
+        $this->transactions->run(function () use ($existing, $record, $sections, $actor, $requestId, $slug): void {
             if ($existing === null) {
                 $id = $this->content->insertPage($record);
             } else {
                 $id = (int) $existing['id'];
                 $this->content->updatePage($id, $record);
+                if ($existing['status'] === 'published' && $record['status'] === 'published' && $existing['slug'] !== $slug) {
+                    $this->seo->recordRedirect(
+                        $this->pagePath((string) $existing['slug']),
+                        $this->pagePath($slug),
+                        $actor,
+                        $record['now'],
+                    );
+                }
             }
             $this->content->replaceSections($id, $sections, $record['now']);
             $this->audit->record($actor, $existing === null ? 'page.created' : 'page.updated', ['subject_type' => 'page', 'subject_id' => $record['uuid'], 'request_id' => $requestId, 'status' => $record['status']], $record['now']);
@@ -142,12 +152,22 @@ final readonly class CmsService
             'published' => $status === 'published' ? ($existing['published_at'] ?? $now) : null,
             'actor' => $actor, 'now' => $now,
         ];
-        if ($existing === null) {
-            $this->content->insertLegal($record);
-        } else {
-            $this->content->updateLegal((int) $existing['id'], $record);
-        }
-        $this->audit->record($actor, $existing === null ? 'legal.created' : 'legal.updated', ['subject_type' => 'legal_document', 'subject_id' => $record['uuid'], 'request_id' => $requestId, 'version' => $record['version'], 'status' => $status], $now);
+        $this->transactions->run(function () use ($existing, $record, $actor, $requestId, $status, $now): void {
+            if ($existing === null) {
+                $this->content->insertLegal($record);
+            } else {
+                $this->content->updateLegal((int) $existing['id'], $record);
+                if ($existing['status'] === 'published' && $record['status'] === 'published' && $existing['slug'] !== $record['slug']) {
+                    $this->seo->recordRedirect(
+                        '/' . (string) $existing['slug'],
+                        '/' . (string) $record['slug'],
+                        $actor,
+                        $now,
+                    );
+                }
+            }
+            $this->audit->record($actor, $existing === null ? 'legal.created' : 'legal.updated', ['subject_type' => 'legal_document', 'subject_id' => $record['uuid'], 'request_id' => $requestId, 'version' => $record['version'], 'status' => $status], $now);
+        });
         return $this->legal((string) $record['uuid']);
     }
 
@@ -300,5 +320,10 @@ final readonly class CmsService
         $bytes[6] = chr((ord($bytes[6]) & 0x0f) | 0x40);
         $bytes[8] = chr((ord($bytes[8]) & 0x3f) | 0x80);
         return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($bytes), 4));
+    }
+
+    private function pagePath(string $slug): string
+    {
+        return $slug === 'home' ? '/' : '/' . $slug;
     }
 }

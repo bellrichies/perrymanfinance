@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use PDO;
+use PerrymanFinance\Config\Config;
 use PerrymanFinance\Database\TransactionManager;
 use PerrymanFinance\Domain\Content\ContentSanitizer;
 use PerrymanFinance\Domain\Content\PublicationWorkflow;
@@ -13,6 +14,7 @@ use PerrymanFinance\Repositories\AuditLogRepository;
 use PerrymanFinance\Repositories\ContentRepository;
 use PerrymanFinance\Repositories\InsightRepository;
 use PerrymanFinance\Services\Insights\InsightService;
+use PerrymanFinance\Services\Seo\SeoService;
 use PHPUnit\Framework\TestCase;
 use Tests\Support\SqliteConnection;
 
@@ -26,7 +28,16 @@ final class EditorialPublishingTest extends TestCase
         $connection = SqliteConnection::memory();
         $this->pdo = $connection->connection();
         $this->createSchema();
-        $this->service = new InsightService(new InsightRepository($connection), new ContentRepository($connection), new ContentSanitizer(), new PublicationWorkflow(), new TransactionManager($connection), new AuditLogRepository($connection));
+        $content = new ContentRepository($connection);
+        $this->service = new InsightService(
+            new InsightRepository($connection),
+            $content,
+            new ContentSanitizer(),
+            new PublicationWorkflow(),
+            new TransactionManager($connection),
+            new AuditLogRepository($connection),
+            new SeoService($content, new Config(['app' => ['env' => 'testing', 'frontend_url' => 'https://example.test']])),
+        );
         $this->pdo->exec("INSERT INTO admin_users (id,display_name) VALUES (1,'Editorial Admin')");
         $this->service->saveCategory(null, ['name' => 'Research', 'slug' => 'research']);
         $this->service->saveCategory(null, ['name' => 'Operations', 'slug' => 'operations']);
@@ -111,6 +122,7 @@ final class EditorialPublishingTest extends TestCase
             'CREATE TABLE article_tags (article_id INTEGER,tag_id INTEGER,created_at TEXT,PRIMARY KEY (article_id, tag_id))',
             'CREATE TABLE faqs (id INTEGER PRIMARY KEY AUTOINCREMENT,question TEXT,answer TEXT,category TEXT,position INTEGER,status TEXT,published_at TEXT,created_by INTEGER,updated_by INTEGER,created_at TEXT,updated_at TEXT)',
             'CREATE TABLE seo_metadata (id INTEGER PRIMARY KEY AUTOINCREMENT,page_id INTEGER,legal_document_id INTEGER,investment_opportunity_id INTEGER,article_id INTEGER UNIQUE,meta_title TEXT,meta_description TEXT,canonical_url TEXT,robots TEXT,open_graph_json TEXT,social_media_id INTEGER,created_at TEXT,updated_at TEXT)',
+            'CREATE TABLE redirects (id INTEGER PRIMARY KEY AUTOINCREMENT,source_path TEXT UNIQUE,destination_path TEXT,status_code INTEGER,is_active INTEGER,created_by INTEGER,created_at TEXT,updated_at TEXT)',
             'CREATE TABLE audit_logs (id INTEGER PRIMARY KEY AUTOINCREMENT,actor_id INTEGER,event TEXT,subject_type TEXT,subject_id TEXT,request_id TEXT,ip_address TEXT,before_json TEXT,after_json TEXT,created_at TEXT)',
         ];
         foreach ($statements as $sql) {

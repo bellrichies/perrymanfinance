@@ -168,6 +168,76 @@ final class ContentRepository extends AbstractRepository
         $this->execute("DELETE FROM seo_metadata WHERE {$column}=:owner", ['owner' => $ownerId]);
     }
 
+    /** @return list<array<string, mixed>> */
+    public function sitemapEntries(string $now): array
+    {
+        $sql = "SELECT 'page' AS type,p.slug,p.title,p.updated_at,s.meta_title,s.meta_description,s.canonical_url,s.robots,s.open_graph_json
+            FROM pages p LEFT JOIN seo_metadata s ON s.page_id=p.id
+            WHERE p.deleted_at IS NULL AND p.status='published'
+            UNION ALL
+            SELECT 'legal_document' AS type,l.slug,l.title,l.updated_at,s.meta_title,s.meta_description,s.canonical_url,s.robots,s.open_graph_json
+            FROM legal_documents l LEFT JOIN seo_metadata s ON s.legal_document_id=l.id
+            WHERE l.status='published' AND (l.effective_at IS NULL OR l.effective_at<=:now_legal)
+            UNION ALL
+            SELECT 'investment_opportunity' AS type,i.slug,i.title,i.updated_at,s.meta_title,s.meta_description,s.canonical_url,s.robots,s.open_graph_json
+            FROM investment_opportunities i LEFT JOIN seo_metadata s ON s.investment_opportunity_id=i.id
+            WHERE i.deleted_at IS NULL AND i.status='published' AND i.published_at IS NOT NULL AND i.published_at<=:now_investment
+            UNION ALL
+            SELECT 'article' AS type,a.slug,a.title,a.updated_at,s.meta_title,s.meta_description,s.canonical_url,s.robots,s.open_graph_json
+            FROM articles a LEFT JOIN seo_metadata s ON s.article_id=a.id
+            WHERE a.deleted_at IS NULL AND a.status='published' AND a.published_at IS NOT NULL AND a.published_at<=:now_article";
+
+        return array_values(array_map(fn (array $row): array => $this->decodeSeoEntry($row), $this->execute($sql, ['now_legal' => $now, 'now_investment' => $now, 'now_article' => $now])->fetchAll()));
+    }
+
+    /** @return list<array<string, mixed>> */
+    public function publishedFaqs(string $now): array
+    {
+        return array_values($this->execute(
+            "SELECT question,answer,category,position,updated_at FROM faqs
+            WHERE status='published' AND (published_at IS NULL OR published_at<=:now)
+            ORDER BY position,id",
+            ['now' => $now],
+        )->fetchAll());
+    }
+
+    /** @return array<string, mixed>|null */
+    public function redirect(string $sourcePath): ?array
+    {
+        $row = $this->execute(
+            'SELECT source_path,destination_path,status_code FROM redirects WHERE source_path=:source AND is_active=1 LIMIT 1',
+            ['source' => $sourcePath],
+        )->fetch();
+
+        return is_array($row) ? $row : null;
+    }
+
+    public function upsertRedirect(string $sourcePath, string $destinationPath, int $statusCode, int $actor, string $now): void
+    {
+        $existing = $this->execute('SELECT id FROM redirects WHERE source_path=:source LIMIT 1', ['source' => $sourcePath])->fetchColumn();
+        if ($existing === false) {
+            $this->execute(
+                'INSERT INTO redirects (source_path,destination_path,status_code,is_active,created_by,created_at,updated_at)
+                VALUES (:source,:destination,:status,1,:actor,:now,:now)',
+                ['source' => $sourcePath, 'destination' => $destinationPath, 'status' => $statusCode, 'actor' => $actor, 'now' => $now],
+            );
+            return;
+        }
+
+        $this->execute(
+            'UPDATE redirects SET destination_path=:destination,status_code=:status,is_active=1,updated_at=:now WHERE id=:id',
+            ['id' => (int) $existing, 'destination' => $destinationPath, 'status' => $statusCode, 'now' => $now],
+        );
+    }
+
+    public function retargetRedirectDestinations(string $oldDestinationPath, string $newDestinationPath, string $now): void
+    {
+        $this->execute(
+            'UPDATE redirects SET destination_path=:new,updated_at=:now WHERE destination_path=:old AND is_active=1',
+            ['new' => $newDestinationPath, 'old' => $oldDestinationPath, 'now' => $now],
+        );
+    }
+
     private function ownerColumn(string $type): string
     {
         return $this->allowedIdentifier($type . '_id', ['page_id', 'legal_document_id', 'investment_opportunity_id', 'article_id']);
@@ -192,6 +262,17 @@ final class ContentRepository extends AbstractRepository
      * @return array<string, mixed>
      */
     private function decodeSeo(array $row): array
+    {
+        $row['open_graph'] = $row['open_graph_json'] === null ? null : json_decode((string) $row['open_graph_json'], true);
+        unset($row['open_graph_json']);
+        return $row;
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     * @return array<string, mixed>
+     */
+    private function decodeSeoEntry(array $row): array
     {
         $row['open_graph'] = $row['open_graph_json'] === null ? null : json_decode((string) $row['open_graph_json'], true);
         unset($row['open_graph_json']);

@@ -9,17 +9,17 @@ use JsonException;
 final readonly class Response
 {
     /**
-     * @param array<string, mixed> $body
+     * @param array<string, mixed>|string $body
      * @param array<string, string> $headers
      */
-    public function __construct(private array $body, private int $status = 200, private array $headers = [])
+    public function __construct(private array|string $body, private int $status = 200, private array $headers = [])
     {
     }
     public function status(): int
     {
         return $this->status;
     }
-    /** @return array<string, mixed> */ public function body(): array
+    /** @return array<string, mixed>|string */ public function body(): array|string
     {
         return $this->body;
     }
@@ -37,8 +37,13 @@ final readonly class Response
     public function send(): void
     {
         http_response_code($this->status);
-        foreach (['Content-Type' => 'application/json; charset=utf-8', ...$this->headers] as $name => $value) {
+        $defaultContentType = is_string($this->body) ? 'text/plain; charset=utf-8' : 'application/json; charset=utf-8';
+        foreach (['Content-Type' => $defaultContentType, ...$this->headers] as $name => $value) {
             header("{$name}: {$value}");
+        }
+        if (is_string($this->body)) {
+            echo $this->body;
+            return;
         }
         echo json_encode($this->body, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
     }
