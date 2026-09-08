@@ -9,6 +9,7 @@ use PerrymanFinance\Http\Controllers\PublicContentController;
 use PerrymanFinance\Http\Controllers\InvestmentController;
 use PerrymanFinance\Http\Controllers\InsightController;
 use PerrymanFinance\Http\Controllers\EnquiryController;
+use PerrymanFinance\Http\Controllers\AdminEnquiryController;
 use PerrymanFinance\Http\Middleware\AuthMiddleware;
 use PerrymanFinance\Http\Middleware\PermissionMiddleware;
 use PerrymanFinance\Http\Router;
@@ -37,6 +38,9 @@ return static function (Router $router): void {
             $router->get('/me', [AdminAuthController::class, 'me'], [AuthMiddleware::class]);
         });
         $router->group('/admin', [AuthMiddleware::class], static function (Router $router): void {
+            $router->get('/enquiries', [AdminEnquiryController::class, 'index'], [new PermissionMiddleware('enquiries.view')]);
+            $router->get('/enquiries/{uuid}', [AdminEnquiryController::class, 'show'], [new PermissionMiddleware('enquiries.view')]);
+            $router->patch('/enquiries/{uuid}', [AdminEnquiryController::class, 'update'], [new PermissionMiddleware('enquiries.update')]);
             $router->get('/investments', [InvestmentController::class, 'adminList'], [new PermissionMiddleware('investments.view')]);
             $router->post('/investments', [InvestmentController::class, 'create'], [new PermissionMiddleware('investments.create')]);
             $router->get('/investments/{uuid}', [InvestmentController::class, 'adminDetail'], [new PermissionMiddleware('investments.view')]);

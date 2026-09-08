@@ -66,3 +66,16 @@ test('network errors offer retry and unpublished pages do not invent copy', asyn
   await page.getByRole('button', { name: 'Try again' }).click();
   await expect(page.getByText('This page has not been published yet.')).toBeVisible();
 });
+
+test('consultation validation focuses an accessible error summary before sending', async ({ page }) => {
+  let submissions = 0;
+  page.on('request', request => { if (request.method() === 'POST' && request.url().endsWith('/enquiries')) submissions++; });
+  await page.goto('/contact?type=consultation');
+  await expect(page.getByLabel('Reason for enquiry')).toHaveValue('consultation');
+  await page.getByRole('button', { name: 'Send enquiry' }).click();
+  await expect(page.getByText('Please correct the following fields:')).toBeVisible();
+  await expect(page.locator('#name')).toHaveAttribute('aria-invalid', 'true');
+  await expect(page.locator('div[tabindex="-1"]').filter({ hasText: 'Please correct the following fields:' })).toBeFocused();
+  expect(submissions).toBe(0);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+});

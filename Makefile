@@ -1,4 +1,10 @@
-.PHONY: install migrate seed test lint build api web-dev
+.PHONY: up down install migrate seed test lint build api web-dev
+
+up:
+	node scripts/dev.mjs up
+
+down:
+	node scripts/dev.mjs down
 
 install:
 	composer --working-dir=backend install

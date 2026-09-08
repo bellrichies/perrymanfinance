@@ -19,7 +19,7 @@ final class Environment
         return new Config([
             'app' => [
                 'env' => $env('APP_ENV', 'production'),
-                'debug' => $env('APP_DEBUG', 'false'),
+                'debug' => in_array($env('APP_ENV', 'production'), ['local', 'development', 'testing'], true) && filter_var($env('APP_DEBUG', 'false'), FILTER_VALIDATE_BOOL),
                 'version' => $env('APP_VERSION', 'dev'),
                 'url' => rtrim($env('APP_URL', 'http://localhost:8090'), '/'),
                 'frontend_url' => rtrim($env('FRONTEND_URL', 'http://localhost:5173'), '/'),
@@ -46,7 +46,12 @@ final class Environment
                 ))),
             ],
             'logging' => ['path' => $env('LOG_PATH', $basePath . '/storage/logs/app.log')],
-            'mail' => ['from' => $env('MAIL_FROM_ADDRESS'), 'enquiries_to' => $env('ENQUIRY_NOTIFICATION_EMAIL')],
+            'mail' => [
+                'from' => $env('MAIL_FROM_ADDRESS'), 'enquiries_to' => $env('ENQUIRY_NOTIFICATION_EMAIL'),
+                'host' => $env('MAIL_HOST'), 'port' => (int) $env('MAIL_PORT', '587'),
+                'username' => $env('MAIL_USERNAME'), 'password' => $env('MAIL_PASSWORD'),
+                'encryption' => $env('MAIL_ENCRYPTION', 'tls'),
+            ],
             'media' => [
                 'path' => $env('MEDIA_STORAGE_PATH') ?: $basePath . '/storage/uploads',
                 'max_bytes' => (int) $env('MEDIA_MAX_BYTES', '5242880'),

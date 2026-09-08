@@ -8,7 +8,7 @@ PerrymanFinance is an institutional-style digital asset investment and wealth-ma
 - Composer 2
 - MySQL 8+ or a compatible MariaDB version provided by the host
 - Node.js 22+ and npm for local development and CI builds
-- A local SMTP catcher or test SMTP account when email workflows are introduced
+- An independently installed local SMTP catcher (for example Mailpit) for enquiry email testing
 - GNU Make is optional
 
 Node.js is a build-time dependency. Production shared hosting serves the compiled files from `web/dist`; it does not need to run Vite or install frontend development dependencies.
@@ -18,11 +18,37 @@ Node.js is a build-time dependency. Production shared hosting serves the compile
 Create local environment files and install locked dependencies:
 
 ```powershell
-Copy-Item .env.example backend/.env
+Copy-Item backend/.env.example backend/.env
 Copy-Item web/.env.example web/.env
 composer --working-dir=backend install
 npm --prefix web ci
 ```
+
+Confirm `php -v` reports 8.3 or newer (an older XAMPP PHP on PATH must be replaced in that terminal's PATH).
+Enable PDO MySQL, OpenSSL, Mbstring, Fileinfo and GD; tests also need PDO SQLite and DOM/XML/XMLWriter.
+Start your installed MySQL service. Create the local database and user using an administrative MySQL session:
+
+```sql
+CREATE DATABASE perrymanfinance CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'perryman'@'127.0.0.1' IDENTIFIED BY 'choose-a-local-password';
+GRANT ALL PRIVILEGES ON perrymanfinance.* TO 'perryman'@'127.0.0.1';
+```
+
+Set `DB_USERNAME=perryman` and your chosen `DB_PASSWORD` in `backend/.env`. Generate a local signing secret with
+`php -r "echo bin2hex(random_bytes(32)), PHP_EOL;"` and put its output in `JWT_SECRET`. Never use the example placeholder.
+Then run:
+
+```powershell
+php backend/bin/migrate.php up
+php backend/bin/seed.php
+node scripts/dev.mjs up
+```
+
+The supervisor runs in the foreground. Stop it with Ctrl+C or `node scripts/dev.mjs down` in another terminal.
+It stops only the PHP/Vite processes it started. MySQL and SMTP are independently managed local services.
+GNU Make users can use `make up` and `make down`.
+If those ports are occupied, set `DEV_API_PORT` and `DEV_WEB_PORT` before `up`; the supervisor configures Vite's API
+proxy to match. Add a changed frontend origin to `CORS_ALLOWED_ORIGINS` when using direct cross-origin API requests.
 
 Start the API and frontend in separate terminals:
 
@@ -36,12 +62,19 @@ Open:
 - Frontend development server: <http://localhost:5173>
 - API health endpoint: <http://localhost:8090/api/v1/health>
 
-Configure a local SMTP catcher separately when email testing is needed. The committed environment files contain placeholders only. Real database, SMTP, signing, and service secrets belong in ignored environment files or the hosting provider's secret/configuration controls.
+For an independently installed Mailpit executable, run `mailpit --smtp 127.0.0.1:1025 --listen 127.0.0.1:8025` in another
+terminal. Set `MAIL_HOST=127.0.0.1`, `MAIL_PORT=1025`, blank `MAIL_ENCRYPTION`, `MAIL_USERNAME`, and `MAIL_PASSWORD`,
+and `ENQUIRY_NOTIFICATION_EMAIL=enquiries@example.test` in `backend/.env`. Read captured messages at
+`http://127.0.0.1:8025`. An alternative catcher can use the same SMTP settings. In production use an approved SMTP
+provider with `MAIL_ENCRYPTION=tls` (normally port 587) or `ssl` (normally 465), real sender/recipient, and private credentials.
+The committed environment files contain placeholders only. Real secrets belong in ignored environment files or hosting configuration.
 
 ## Commands
 
 ```bash
 make install   # install locked backend and frontend dependencies
+make up        # run local API and Vite under one foreground supervisor
+make down      # stop only supervisor-managed API/Vite processes
 make migrate   # run registered migrations
 make seed      # run development seeders; never run production seed data blindly
 make test      # run backend and frontend tests
@@ -102,7 +135,7 @@ A provider-specific deployment and rewrite configuration must be documented afte
 - `docs/`: product, architecture, security, delivery, and implementation guidance
 - `.github/workflows/`: build and quality verification
 
-The backend now includes the Phase 2 custom MVC core: environment-backed configuration, dependency injection, routing,
-middleware, request/response abstractions, PDO and transaction boundaries, validation, structured logging, and safe API
-exception mapping. Domain migrations, authentication, authorization, and business features remain deferred to their
-documented phases.
+The repository contains the engineering foundation, CMS/public website and admin identity prerequisites, plus enquiry
+and consultation submission and administration. See [enquiry API, status workflow and operations](docs/13-enquiries.md).
+Publish approved privacy and consent content before enabling the public form. Production hosting, legal approval and
+SMTP delivery must be verified separately; a passing local build is not production sign-off.

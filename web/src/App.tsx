@@ -14,6 +14,8 @@ export function App() {
     <Route path="/insights" element={<InsightsPage />} />
     <Route path="/insights/:slug" element={<InsightDetailPage />} />
     <Route path="/faq" element={<FAQPage />} />
+    <Route path="/health" element={<HealthPage />} />
+    <Route element={<ProtectedRoute />}><Route element={<AdminLayout />}><Route path="/admin/enquiries" element={<AdminEnquiriesPage />} /></Route></Route>
     <Route element={<ProtectedRoute />}><Route path="/admin" element={<AdminLayout />}><Route index element={<DashboardPage />} /><Route path="pages" element={<PagesScreen />} /><Route path="investments" element={<AdminInvestmentsPage />} /><Route path="articles" element={<AdminEditorialPage />} /><Route path="faqs" element={<AdminEditorialPage initialTab="faqs" />} /><Route path="legal" element={<LegalScreen />} /><Route path="settings" element={<SettingsScreen />} /><Route path="media" element={<MediaScreen />} /><Route path="seo" element={<SeoScreen />} /></Route></Route>
     <Route path="/" element={<MarketingPage slug="home" title="PerrymanFinance" />} />
     {Object.entries({ about: 'About', 'investment-solutions': 'Investment Solutions', 'digital-assets': 'Digital Assets', 'wealth-management': 'Wealth Management', 'how-it-works': 'How It Works' }).map(([slug, title]) => <Route key={slug} path={`/${slug}`} element={<MarketingPage slug={slug} title={title} />} />)}
@@ -69,3 +71,5 @@ const SettingsScreen = lazy(() => import('./features/content/CmsScreens').then(m
 const AdminInvestmentsPage = lazy(() => import('./features/investments/AdminInvestmentsPage').then(m => ({ default: m.AdminInvestmentsPage })));
 
 const AdminEditorialPage = lazy(() => import('./features/insights/AdminEditorialPage').then(m => ({ default: m.AdminEditorialPage })));
+const AdminEnquiriesPage = lazy(() => import('./features/enquiries/AdminEnquiriesPage').then(m => ({ default: m.AdminEnquiriesPage })));
+const HealthPage = lazy(() => import('./features/health/HealthPage').then(m => ({ default: m.HealthPage })));

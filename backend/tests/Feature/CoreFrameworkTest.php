@@ -13,6 +13,17 @@ use Tests\Support\ApplicationFactory;
 
 final class CoreFrameworkTest extends TestCase
 {
+    public function testProductionMasksErrorsEvenWithDebugEnabled(): void
+    {
+        $app = ApplicationFactory::create(static fn (Router $router) => $router->get(
+            '/fail',
+            static function (): never {
+                throw new RuntimeException('private diagnostic');
+            },
+        ), new \PerrymanFinance\Config\Config(['app' => ['env' => 'production', 'debug' => true]]));
+        self::assertSame('An unexpected error occurred.', $app->handle(new Request('GET', '/fail'))->body()['error']['message']);
+    }
+
     public function testNotFoundAndMethodNotAllowedAreMappedToSafeApiErrors(): void
     {
         $app = ApplicationFactory::create(static fn (Router $router) => $router->get(

@@ -45,7 +45,7 @@ final readonly class ExceptionHandler
                 $response = $response->withHeader($name, $value);
             }
         } else {
-            $message = $this->config->bool('app.debug') ? $exception->getMessage() : 'An unexpected error occurred.';
+            $message = $this->config->string('app.env', 'production') !== 'production' && $this->config->bool('app.debug') ? $exception->getMessage() : 'An unexpected error occurred.';
             $response = $this->responses->error('INTERNAL_SERVER_ERROR', $message, 500);
         }
         return is_string($requestId) ? $response->withHeader('X-Request-ID', $requestId) : $response;

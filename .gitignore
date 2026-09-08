@@ -15,6 +15,7 @@ web/coverage/
 .vscode/
 *.swp
 .DS_Store
+.dev/
 
 web/test-results/
 web/playwright-report/
