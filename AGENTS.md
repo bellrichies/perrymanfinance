@@ -2,15 +2,15 @@
 
 ## Purpose
 
-This repository implements PerrymanFinance, an institutional-style digital asset investment and wealth-management information website. The production MVP consists of:
+This repository implements PerrymanFinance, an institutional-style financial services, securities, digital asset investment, and wealth-management platform. The production MVP consists of:
 
-- a public marketing and educational website;
-- an investment-opportunity catalogue that is informational only;
+- a public operational website for services, products, insights, risk, onboarding intake, and client support;
+- an investment-opportunity catalogue that presents approved products and opportunities with risk controls and non-offer disclaimers;
 - insights, FAQs, legal content, SEO, and site settings;
-- contact and consultation lead capture;
+- contact, consultation, and onboarding-intake workflows;
 - a secure administration CMS.
 
-The MVP is not an exchange, brokerage, wallet, custody product, trading platform, investment ledger, or automated investment engine.
+The MVP may present the company as an operational financial-services and securities business, but it must not implement or claim unapproved exchange, brokerage execution, wallet, custody, payment, investment-ledger, or automated-return capabilities.
 
 ## Source of Truth
 
@@ -50,7 +50,7 @@ Do not implement or imply any of the following unless the project is formally re
 - guaranteed returns, fabricated performance, or unsupported financial claims;
 - unverified licensing, regulatory status, company details, fees, or legal terms.
 
-Use informational CTAs such as “View Details,” “Learn More,” and “Request Information.” Do not introduce “Invest Now,” artificial urgency, fake balances, or speculative crypto-casino patterns.
+Use controlled CTAs such as “View Details,” “Learn More,” “Request Consultation,” and “Start Onboarding.” Do not introduce “Invest Now,” artificial urgency, fake balances, fabricated account data, or speculative crypto-casino patterns.
 
 All financial descriptions, risk notices, and legal content must be CMS-editable. Never invent production legal copy; flag placeholders for review by qualified counsel and the business.
 
@@ -63,7 +63,7 @@ Build a modular monolith with two application surfaces:
 
 Supporting areas are `.github/workflows/` and `docs/`. Use MySQL 8+ with InnoDB and `utf8mb4`. Development uses locally installed PHP 8.2+, Composer, MySQL, and Node tooling. Production targets shared Linux hosting and deploys prebuilt frontend assets with production Composer dependencies. Do not assume access to long-running workers, Redis, root privileges, or web-server configuration beyond the selected host's capabilities.
 
-Keep public, admin, and future client-portal concerns isolated. Do not retrofit future financial functions into CMS modules.
+Keep public, admin, and client-account concerns isolated. Do not retrofit regulated transaction, custody, or accounting functions into CMS modules.
 
 Implement features as vertical slices when their prerequisites exist:
 

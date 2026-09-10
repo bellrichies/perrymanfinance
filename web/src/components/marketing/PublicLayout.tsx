@@ -45,7 +45,7 @@ export function Footer() {
   return <footer className="border-t border-white/10 bg-[#030812] text-slate-300">
     <div className="mx-auto max-w-7xl px-6 py-14">
       <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr_1.25fr]">
-        <div><Link className="text-xl font-semibold text-white" to="/"><BrandLogo compact /></Link><p className="mt-4 text-sm text-slate-400">Investment services, wealth-management information, digital asset research, and market insight for clients seeking a disciplined path to financial decision-making.</p></div>
+        <div><Link className="text-xl font-semibold text-white" to="/"><BrandLogo compact /></Link><p className="mt-4 text-sm text-slate-400">Financial services, securities products, wealth and portfolio management, digital asset research, client account pathways, and market insight for clients seeking a disciplined operating platform.</p></div>
         <nav aria-label="Services"><h2 className="mb-4 font-semibold text-white">Explore</h2>{services.map(([label, path]) => <Link className="mb-3 block text-sm" to={path} key={path}>{label}</Link>)}</nav>
         <nav aria-label="Resources"><h2 className="mb-4 font-semibold text-white">Resources</h2>{([['Insights', '/insights'], ['FAQ', '/faq'], ['Contact', '/contact']] as const).map(([label, path]) => <Link className="mb-3 block text-sm" to={path} key={path}>{label}</Link>)}</nav>
         <nav aria-label="Legal"><h2 className="mb-4 font-semibold text-white">Legal & risk</h2>{legal.map(([label, path]) => <Link className="mb-3 block text-sm" to={path} key={path}>{label}</Link>)}</nav>

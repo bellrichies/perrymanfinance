@@ -1,6 +1,6 @@
 # Editorial publishing
 
-Editorial publishing covers Insights articles, categories, tags, related content, and public FAQs. It is informational only and must not contain guaranteed returns, invented licensing claims, trading execution, custody, deposits, withdrawals, or client-money accounting.
+Editorial publishing covers Insights articles, categories, tags, related content, and public FAQs for market commentary, investment research, risk education, portfolio context, operational process guidance, and client-service questions. It must not contain guaranteed returns, invented licensing claims, fabricated performance, unapproved trading execution, custody, deposits, withdrawals, payments, or client-money accounting.
 
 ## API
 

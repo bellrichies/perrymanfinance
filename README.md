@@ -1,6 +1,6 @@
 # PerrymanFinance
 
-PerrymanFinance is an institutional-style digital asset investment and wealth-management information website. The MVP is a corporate website, informational opportunity catalogue, publishing platform, enquiry workflow, and administration CMS. It is not a wallet, exchange, custody, trading, payment, investment-ledger, or automated-return system.
+PerrymanFinance is an institutional-style financial services, securities, digital asset, investment-management, and wealth-management platform. The MVP combines public service pages, investment-product and opportunity workflows, market insights, enquiry and onboarding intake, client-service positioning, and an administration CMS. It must not claim unverified licensing, partnerships, assets under management, investment performance, guaranteed returns, custody, trading execution, wallet control, payment processing, or client-money accounting unless those capabilities and approvals are formally added.
 
 ## Runtime and development requirements
 
@@ -96,7 +96,7 @@ php backend/bin/seed.php
 Migrations run in deterministic filename order and are recorded in `schema_migrations`. Rollback is always explicit;
 production rollback additionally requires `--force`. There is intentionally no reset or fresh command. Seeders are
 restricted to `local`, `development`, and `testing` environments and contain reference roles, permissions, safe public
-CMS starter pages, page sections, SEO metadata, public settings, and clearly marked legal placeholders.
+CMS starter pages, operational service page sections, SEO metadata, public settings, and clearly marked legal placeholders.
 Configure a least-privilege database user and take a verified backup before production migrations.
 
 The equivalent Composer/npm/PHP commands are defined directly in the [Makefile](./Makefile).
@@ -136,7 +136,7 @@ A provider-specific deployment and rewrite configuration must be documented afte
 - `docs/`: product, architecture, security, delivery, and implementation guidance
 - `.github/workflows/`: build and quality verification
 
-The repository contains the engineering foundation, CMS/public website and admin identity prerequisites, plus enquiry
-and consultation submission and administration. See [enquiry API, status workflow and operations](docs/13-enquiries.md).
+The repository contains the engineering foundation, CMS/public platform and admin identity prerequisites, plus enquiry,
+onboarding-intake, consultation submission and administration. See [enquiry API, status workflow and operations](docs/13-enquiries.md).
 Publish approved privacy and consent content before enabling the public form. Production hosting, legal approval and
 SMTP delivery must be verified separately; a passing local build is not production sign-off.

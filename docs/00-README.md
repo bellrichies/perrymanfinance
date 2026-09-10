@@ -4,19 +4,19 @@
 
 This documentation pack is the implementation source of truth for the first production release of **PerrymanFinance**.
 
-PerrymanFinance is a digital asset investment and wealth management website designed to:
+PerrymanFinance is a financial services, securities, digital asset investment, and wealth-management platform designed to:
 
-- present the company and its investment philosophy;
-- explain digital asset and wealth management services;
-- present structured investment opportunities;
+- present the company, operating model, and investment philosophy;
+- explain securities, digital asset, wealth-management, portfolio-management, client-account, fintech, and risk-management services;
+- present approved investment products and structured opportunities with appropriate risk controls;
 - publish financial and digital asset insights;
-- educate prospective clients about process, risk, and services;
-- capture qualified enquiries and consultation requests;
+- guide prospective and existing clients through process, risk, service, onboarding, account, reporting, and support expectations;
+- capture qualified enquiries, consultation requests, and onboarding-intake requests;
 - provide strong legal, privacy, and risk-disclosure foundations;
 - allow authorized administrators to manage public website content;
-- preserve a clear architecture path toward a future secure client portal.
+- preserve a clear architecture path for secure client-account and reporting capabilities.
 
-The MVP is intentionally a **corporate/investment information and lead-generation platform**, not a cryptocurrency exchange, brokerage, wallet, custody platform, or automated investment engine.
+The MVP should represent PerrymanFinance as an operational financial platform. It must avoid unverified claims about licenses, registrations, partnerships, AUM, performance, custody, brokerage execution, payments, wallets, or guaranteed returns unless those capabilities and approvals are formally added.
 
 ---
 
@@ -92,7 +92,7 @@ The MVP is intentionally a **corporate/investment information and lead-generatio
 - Insights / Blog
 - Insight Details
 - FAQ
-- Contact
+- Client Onboarding / Contact
 - Privacy Policy
 - Terms of Service
 - Risk Disclosure
@@ -117,14 +117,14 @@ The MVP is intentionally a **corporate/investment information and lead-generatio
 
 Do not implement these unless the project scope is formally changed:
 
-- cryptocurrency wallet custody;
+- unapproved cryptocurrency wallet custody;
 - wallet funding;
 - deposits and withdrawals;
-- trading execution;
+- unapproved trading execution;
 - blockchain private-key management;
 - automated ROI computation;
 - guaranteed-return schemes;
-- brokerage execution;
+- unapproved brokerage execution;
 - investment subscription ledger;
 - KYC transaction onboarding;
 - fiat settlement;
@@ -145,7 +145,7 @@ Do not implement these unless the project scope is formally changed:
 8. Security-by-default configuration.
 9. Progressive enhancement and accessibility.
 10. Automated tests for business-critical behavior.
-11. Separate public, admin, and future client-portal concerns.
+11. Separate public, admin, and client-account concerns.
 12. No financial claim or calculation should be hard-coded into UI content.
 13. Legal and risk-disclosure content must be editable without code deployment.
 14. Observability, deployment rollback, and backups are part of the definition of done.

@@ -9,6 +9,7 @@ backend/storage/uploads/*
 !backend/storage/logs/.gitkeep
 !backend/storage/uploads/.gitkeep
 web/node_modules/
+web/node_modules.broken-*/
 web/dist/
 web/coverage/
 .idea/

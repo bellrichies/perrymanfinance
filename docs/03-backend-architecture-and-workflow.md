@@ -12,7 +12,7 @@ The backend must provide a secure, maintainable REST API for:
 - media;
 - SEO configuration;
 - legal content;
-- future client-portal expansion.
+- client-account and reporting expansion.
 
 Use a **modular monolith** with strict internal boundaries.
 
@@ -300,10 +300,10 @@ User Opens Details
 User Reads Risk Disclosure
    |
    v
-Enquiry / Request Information
+Consultation / Onboarding Intake
 ```
 
-No investment transaction occurs in MVP.
+No investment transaction, custody, payment, wallet, or client-money accounting occurs through public pages unless formally approved and implemented in a controlled module.
 
 ---
 

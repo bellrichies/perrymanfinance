@@ -1,6 +1,6 @@
 # Investment-opportunity catalogue
 
-The catalogue is informational only. It does not accept funds, create subscriptions, calculate returns, execute trades, or manage wallets. Public calls expose only opportunities whose workflow status is `published`, whose publication timestamp is present and not in the future, and which have not been deleted.
+The catalogue presents approved investment products and opportunities for controlled public review, consultation, onboarding intake, risk disclosure, and portfolio discussion. Public catalogue pages do not by themselves accept funds, create subscriptions, calculate returns, execute trades, custody assets, process payments, or manage wallets. Public calls expose only opportunities whose workflow status is `published`, whose publication timestamp is present and not in the future, and which have not been deleted.
 
 ## API
 

@@ -231,7 +231,7 @@ Do not use aggressive "Invest Now" UX in MVP.
 Prefer:
 - View Details
 - Learn More
-- Request Information
+- Request Consultation
 
 ---
 
@@ -254,7 +254,7 @@ Key Considerations
 
 Risk Notice
 
-[Request Information]
+[Request Consultation]
 ```
 
 ---

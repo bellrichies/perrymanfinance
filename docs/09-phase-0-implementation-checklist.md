@@ -4,7 +4,7 @@
 
 This document validates the requirements and architecture described in `docs/00-README.md` through `docs/08-copilot-ready-prompts.md`. At the time of review, the repository contains documentation and `AGENTS.md` only; no product code, tests, runtime configuration, or infrastructure has been implemented.
 
-The MVP is limited to a public corporate and educational website, an informational investment-opportunity catalogue, insights and FAQs, editable legal content, technical SEO, enquiry capture, and a secure administration CMS. It does not move money or assets and does not provide client portfolios, custody, wallets, trading, brokerage execution, subscriptions, KYC transaction onboarding, or return calculations.
+The MVP is limited to an operational public financial-services platform, investment product and opportunity catalogue, market insights and FAQs, editable legal content, technical SEO, enquiry and onboarding-intake capture, and a secure administration CMS. It does not move money or assets and does not provide unapproved custody, wallets, trading, brokerage execution, payments, subscriptions, KYC transaction onboarding, client-money accounting, or automated return calculations.
 
 ## 1. Assumptions
 
@@ -14,14 +14,14 @@ The MVP is limited to a public corporate and educational website, an information
 - MySQL 8+ with InnoDB, `utf8mb4`, foreign keys, versioned migrations, and UTC timestamps is the system of record.
 - Public and admin experiences share the web application but use separate layouts, route trees, API policies, and authorization boundaries.
 - All API routes use `/api/v1`; successful and failed responses use the documented JSON envelopes.
-- Public content is read from the API. Important marketing, investment, risk, and legal content is CMS-editable and is not embedded as production claims in frontend code.
+- Public content is read from the API. Important services, investment, product, client-account, risk, and legal content is CMS-editable and is not embedded as production claims in frontend code.
 - Pages, articles, investment opportunities, and legal documents use `draft -> review -> published -> archived`. Public APIs return published records only.
 - Admin authorization is deny-by-default and enforced by the backend. Frontend permission-aware controls are usability aids, not security controls.
 - A single API client and a TanStack Query-style server-state layer are used by the frontend.
 - Local development uses installed PHP 8.2+, Composer, MySQL, and Node tooling. An independent SMTP catcher or test account is configured when email work begins. Redis and continuously running workers are not assumed on shared hosting.
 - SMTP through a PHPMailer abstraction is the initial email integration. Email failure cannot roll back or lose a valid persisted enquiry.
 - Media is initially handled through an abstracted storage interface so local non-executable storage can later be replaced by object storage without changing domain workflows.
-- Public CTAs use terms such as “View Details,” “Learn More,” and “Request Information.”
+- Public CTAs use controlled terms such as View Details, Learn More, Request Consultation, and Start Onboarding.
 
 ### Decisions required before the affected work is finalized
 
@@ -69,8 +69,8 @@ Core configuration, PDO connection, and logger bindings are singletons where app
 | Module | Responsibilities | Principal entities/tables |
 | --- | --- | --- |
 | Identity | Admin authentication, RBAC, reset and refresh flows, audit | `admin_users`, `roles`, `permissions`, `role_permissions`, `user_roles`, `password_reset_tokens`, `refresh_tokens`, `audit_logs` |
-| Content | Marketing pages and sections, legal documents, media, settings | `pages`, `page_sections`, `legal_documents`, `media_assets`, `site_settings` |
-| Investment | Informational opportunity catalogue and risk classification | `investment_categories`, `investment_opportunities` |
+| Content | Public platform pages and sections, legal documents, media, settings | `pages`, `page_sections`, `legal_documents`, `media_assets`, `site_settings` |
+| Investment | Investment products, opportunity catalogue and risk classification | `investment_categories`, `investment_opportunities` |
 | Insights | Articles, taxonomies, featured/related content and FAQs | `article_categories`, `articles`, `tags`, `article_tags`, `faqs` |
 | Enquiries | Contact/consultation capture and admin workflow | `enquiries` |
 | SEO | Metadata, canonical/index controls, redirects and sitemap inputs | `seo_metadata`, `redirects` |
@@ -83,12 +83,12 @@ Optional `jobs`, `failed_jobs`, and application-managed rate-limit tables are ad
 | --- | --- | --- |
 | `/` | pages, public settings, featured investments/articles | Approved homepage sequence, risk statement, responsive and crawlable output |
 | `/about` | `GET /pages/{slug}` | Company, philosophy, approved team/details |
-| `/investment-solutions` | `GET /pages/{slug}` | Informational services only |
-| `/digital-assets` | `GET /pages/{slug}` | Education and approved risk-aware service content |
+| `/investment-solutions` | `GET /pages/{slug}` | Investment product, securities, and portfolio-service overview without unsupported claims |
+| `/digital-assets` | `GET /pages/{slug}` | Digital asset management, operations, and approved risk-aware service content |
 | `/wealth-management` | `GET /pages/{slug}` | Approved service content without unsupported claims |
-| `/how-it-works` | `GET /pages/{slug}` | Informational process ending in enquiry, not transaction |
+| `/how-it-works` | `GET /pages/{slug}` | Client experience from service review to consultation, onboarding intake, documentation, and reporting expectations |
 | `/investments` | `GET /investments`, `GET /investment-categories` | Published-only catalogue, safe filters and capped pagination |
-| `/investments/:slug` | `GET /investments/{slug}` | Risk classification, disclaimer, risk notice, request-information CTA |
+| `/investments/:slug` | `GET /investments/{slug}` | Risk classification, disclaimer, risk notice, consultation/onboarding CTA |
 | `/insights` | `GET /insights`, categories/tags | Published-only list, filters and pagination |
 | `/insights/category/:slug` | `GET /insights` with category filter | Category archive; required by product IA though omitted from the frontend route list |
 | `/insights/:slug` | `GET /insights/{slug}` | Article metadata, related content and applicable disclaimer |
@@ -156,7 +156,7 @@ All admin routes use guards and deliberate loading/error states, but every API a
 | PR-002 Editable important content | Content, SEO, Identity | page/section, settings, media and SEO editors | pages, sections, media, settings, SEO | CRUD, authorization, validation, preview/publish visibility |
 | PR-003 Opportunity catalogue | Investment, Content, SEO | public list/detail; admin category/editor/publish UI | categories, opportunities, media, SEO | risk/disclaimer gates, slug, filters, pagination, draft invisibility |
 | PR-004 Insights publishing | Insights, Content, SEO | index/detail/category; article/taxonomy editors | articles, categories, tags, joins, media, SEO | relationships, filtering, related content, publication visibility |
-| PR-005 Contact/consultation leads | Enquiries, Identity/audit, email integration | accessible contact form; admin list/detail/status | enquiries; optional jobs | validation, throttling, duplicate handling, email failure durability, RBAC |
+| PR-005 Contact/consultation/onboarding intake | Enquiries, Identity/audit, email integration | accessible contact form; admin list/detail/status | enquiries; optional jobs | validation, throttling, duplicate handling, email failure durability, RBAC |
 | PR-006 Editable/versioned legal content | Content, SEO, Identity/audit | legal routes and editor/preview/publish UI | legal documents, SEO, audit | version/effective date, approval, public current version, audit |
 | PR-007 SEO | SEO plus every publishable module | metadata manager, route head/JSON-LD, sitemap/robots | SEO metadata, redirects | canonical, noindex/draft exclusion, redirect and structured-data tests |
 | PR-008 WCAG 2.1 AA practices | API errors support usable UI | semantics, skip link, keyboard/focus, contrast, reduced motion, accessible forms | alt text/media metadata where relevant | automated accessibility plus manual keyboard/screen/viewport review |
@@ -199,7 +199,7 @@ The phase numbering in `docs/07-delivery-phases-roadmap.md` is canonical. The se
 5. **Phase 4 — CMS/legal:** pages/sections, legal versions, settings, media, SEO base model, workflows, admin editors, public content endpoints and cache invalidation.
 6. **Phase 5 — investments:** category/opportunity vertical slice, publication risk gates, admin and public UI, SEO and tests.
 7. **Phase 6 — insights/FAQ:** editorial taxonomy, articles/tags/FAQ, related content, admin/public UI, SEO and tests.
-8. **Phase 7 — public marketing:** approved rendering strategy, design system, layouts and remaining marketing routes composed from existing APIs.
+8. **Phase 7 - public platform:** approved rendering strategy, design system, layouts and remaining public financial-services routes composed from existing APIs.
 9. **Phase 8 — enquiries:** persistence-first submission, consent/anti-spam/rate limit, email abstraction, admin workflow and tests.
 10. **Phase 9 — SEO/performance/accessibility:** sitemap/robots/redirect completion, JSON-LD, caching/image/font optimization and accessibility remediation.
 11. **Phase 10 — QA/security/UAT:** full regression/E2E/security suite, dependency scan, permission/upload review, staging content and stakeholder acceptance.
@@ -218,7 +218,7 @@ Within Phases 4–8, each feature follows: migration/schema -> repository -> ser
 | `/admin` and `/admin/dashboard` both describe the dashboard | Make `/admin` the canonical route and redirect `/admin/dashboard`, or choose the reverse before frontend routing. Avoid two indexable/canonical admin URLs. |
 | Product IA includes `/insights/category/{slug}`, but frontend route documentation omits it | Include the category route because the product IA has precedence. |
 | Product IA has dedicated `/admin/categories`, `/admin/tags`, and `/admin/seo`; frontend route documentation omits them | Include them or document their deliberate nesting under insights/content before implementation. Capabilities must remain available. |
-| `Portfolio Management` appears as a service label while portfolio accounting is prohibited | Treat it only as approved advisory/marketing content. Do not store client holdings, calculate performance, or imply an operational portfolio platform. |
+| `Portfolio Management` appears as a service label while client-money accounting is prohibited | Treat portfolio management as service, process, reporting, and review content unless a regulated account module is formally approved. Do not store live client holdings, calculate performance, or imply unapproved custody/execution/accounting capability. |
 | JWT is suggested while browser token transport is undecided | JWT alone is not the decision. Record an authentication ADR covering storage, cookie/CSRF behavior, rotation and revocation before Phase 3. |
 | SEO relations may be polymorphic or explicit | Prefer explicit relations for clarity unless an ADR demonstrates a better alternative. |
 | The docs mention retries/queues but make workers optional | Persist first; introduce a job table/worker only when email delivery requirements justify operational complexity. |
@@ -226,7 +226,7 @@ Within Phases 4–8, each feature follows: migration/schema -> repository -> ser
 ### Missing or unresolved requirements
 
 - No approved business identity, jurisdiction, regulatory wording, financial claims, fees, disclaimers, legal copy, privacy notices, or retention schedule exists.
-- No approved sitemap/page content inventory identifies which marketing sections are structured CMS blocks and which fields are required.
+- No approved sitemap/page content inventory identifies which public platform sections are structured CMS blocks and which fields are required.
 - No formal state-transition matrix defines who may move each publishable entity between statuses, whether published content can return to draft, or how scheduled/future effective legal versions behave.
 - No permission names are defined for SEO, investment categories, article categories/tags, or dashboard access; the final permission catalogue and role matrix need approval.
 - No exact API payload schemas, stable error-code catalogue, filter vocabulary, maximum page size, maximum field lengths, or concurrency strategy is defined.
@@ -245,8 +245,8 @@ These gaps do not justify inventing behavior. Resolve each before its dependent 
 
 - Newsletter functionality is conditional and is not part of the baseline MVP.
 - Market feeds, live prices, charts, trading signals, and market-data subscriptions are excluded unless explicitly approved.
-- Existing-client login links must not become a client account or portal in MVP.
-- “Portfolio Management” and “Structured Investment Opportunities” are informational content, not ledgers, subscriptions, suitability decisions, execution, or reporting systems.
+- Existing-client login links must not become a live client account or portal without approved account-module scope.
+- Portfolio Management and Structured Investment Opportunities may be presented as operational service and product areas, but not as live ledgers, subscriptions, automated suitability decisions, execution, custody, payment, or client-money reporting systems unless separately approved.
 - Investment minimum and currency are display-only, optional, and require verified approved source data.
 - Enquiry assignment and internal notes are optional; do not build a general CRM.
 - Jobs, Redis, object storage, CDN, analytics, search, and image pipelines are implementation options, not automatic scope.

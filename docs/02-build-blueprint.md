@@ -195,7 +195,7 @@ updated_at
 deleted_at
 ```
 
-`content_json` can store structured section configuration for editable marketing pages while important domain content remains normalized.
+`content_json` can store structured section configuration for editable public platform pages while important domain content remains normalized.
 
 ### LegalDocument
 
@@ -461,7 +461,7 @@ Core primitives:
 - ErrorState
 - ConfirmDialog
 
-Marketing components:
+Public platform components:
 
 - HeroSection
 - SectionHeader

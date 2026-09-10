@@ -351,7 +351,7 @@ Do not allow unsafe arbitrary scripts in CMS content.
 ```text
 Implement the PerrymanFinance investment-opportunity catalogue.
 
-This is informational only. Do not implement investing, funding, payments, subscriptions, wallets, deposits, withdrawals, or guaranteed return calculations.
+This is a controlled investment product and opportunity catalogue for public review, consultation, onboarding intake, risk disclosure, and portfolio discussion. Do not implement investing, funding, payments, subscriptions, wallets, deposits, withdrawals, custody, brokerage execution, client-money accounting, or guaranteed return calculations.
 
 Entities:
 InvestmentCategory
@@ -391,7 +391,7 @@ Frontend public:
 - investment cards;
 - investment detail;
 - prominent risk notice;
-- Request Information CTA.
+- Consultation/onboarding CTA.
 
 Frontend admin:
 - list;
@@ -482,10 +482,10 @@ Tests:
 
 ---
 
-## Phase 8 Prompt — Public Marketing Website
+## Phase 8 Prompt - Public Financial Services Platform
 
 ```text
-Build the complete PerrymanFinance public website using the API and the approved design direction.
+Build the complete PerrymanFinance public financial-services platform using the API and the approved design direction.
 
 Style:
 - institutional digital wealth management;
@@ -828,19 +828,19 @@ Separate:
 - performance work;
 - content requests;
 - conversion optimization;
-- future client-portal features.
+- client-account and reporting features.
 
 Do not begin wallet/trading/client-money features as ordinary backlog tasks. Flag them for separate architecture, threat-model, compliance, and product review.
 ```
 
 ---
 
-## Future Client Portal Discovery Prompt
+## Client Account Module Discovery Prompt
 
 ```text
 Do not write code.
 
-We are considering a future PerrymanFinance authenticated client portal.
+We are considering a PerrymanFinance authenticated client account module.
 
 Conduct architecture discovery for:
 - client identity;

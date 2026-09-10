@@ -50,7 +50,7 @@ export function CmsSection({ section }: { section: PageSection }) {
   const body = string(content.body);
   const slot = string(content.slot);
   if (section.type === 'hero') return <HeroSection title={title} body={body} eyebrow={string(content.eyebrow)} />;
-  if (section.type === 'cta') return <div className="section-wrap"><CTASection title={title || 'Request information'} body={body} /></div>;
+  if (section.type === 'cta') return <div className="section-wrap"><CTASection title={title || 'Start a Consultation'} body={body} /></div>;
   if (section.type === 'markets') return <MarketsSection />;
   if (section.type === 'philosophy_stats') return <PhilosophyStatsSection />;
   if (['positioning', 'philosophy', 'risk'].includes(slot)) return <VisualBand slot={slot} title={title} body={body} eyebrow={string(content.eyebrow)} />;
@@ -66,34 +66,34 @@ type HomeSlot = [string, string, string];
 const homeSlots: HomeSlot[] = [
   ['hero', 'hero', 'PerrymanFinance'], ['philosophy_stats', 'philosophy_stats', 'Investment philosophy'],
   ['markets', 'markets', 'Markets'], ['positioning', 'rich_text', 'Who we serve'], ['services', 'service_grid', 'Services'], ['philosophy', 'rich_text', 'Investment philosophy'],
-  ['opportunities', 'investment_preview', 'Featured opportunities'], ['process', 'process_steps', 'How it works'], ['credibility', 'feature_grid', 'Why PerrymanFinance'], ['risk', 'rich_text', 'Risk management'], ['insights', 'insights_preview', 'Featured insights'], ['cta', 'cta', 'Request information'],
+  ['opportunities', 'investment_preview', 'Featured opportunities'], ['process', 'process_steps', 'How it works'], ['credibility', 'feature_grid', 'Why PerrymanFinance'], ['risk', 'rich_text', 'Risk management'], ['insights', 'insights_preview', 'Featured insights'], ['cta', 'cta', 'Start a Consultation'],
 ];
 
 function fallbackHomeSection([slot, type, heading]: HomeSlot): PageSection {
   const defaults: Record<string, Record<string, unknown>> = {
-    hero: { heading: 'Investment services for modern wealth decisions', eyebrow: 'PerrymanFinance', body: '<p>PerrymanFinance presents investment services, wealth-management information, digital asset research, and structured opportunity reviews for clients who want a disciplined way to evaluate financial markets.</p>' },
-    positioning: { heading: 'A financial services partner for informed clients', eyebrow: 'Who we serve', body: '<p>PerrymanFinance helps private investors, families, founders, and professional allocators review investment themes with clearer context across wealth management, portfolio considerations, digital asset exposure, and market insight.</p><p>The website is informational and enquiry-led. It does not accept deposits, create wallets, custody assets, execute trades, or process investment subscriptions.</p>' },
-    services: { heading: 'Services designed around advice, access, and discipline', eyebrow: 'Services', items: [
-      { title: 'Investment Solutions', body: 'Structured information for clients comparing objectives, time horizon, liquidity needs, risk classification, and broader portfolio role.', href: '/investment-solutions' },
-      { title: 'Digital Asset Management', body: 'Research-led education on digital asset exposure, market structure, custody considerations, operational controls, and governance requirements.', href: '/digital-assets' },
-      { title: 'Wealth Management', body: 'Planning-focused content for diversification, liquidity management, family and business-owner priorities, reporting needs, and long-term decisions.', href: '/wealth-management' },
+    hero: { heading: 'Financial services for modern wealth and securities clients', eyebrow: 'PerrymanFinance', body: '<p>PerrymanFinance presents financial services, securities-related capabilities, investment products, wealth and portfolio management, digital asset strategy, account-service pathways, and market insight for clients who need a disciplined operating platform for financial decisions.</p>' },
+    positioning: { heading: 'A financial services partner for informed clients', eyebrow: 'Who we serve', body: '<p>PerrymanFinance helps private investors, families, founders, and professional allocators review investment themes with clearer context across wealth management, portfolio considerations, digital asset exposure, and market insight.</p><p>The platform connects public content with consultation, onboarding intake, product review, client-service expectations, reporting concepts, and account-management pathways while avoiding unapproved custody, execution, payment, or guaranteed-return claims.</p>' },
+    services: { heading: 'Services designed around advice, products, accounts, and discipline', eyebrow: 'Services', items: [
+      { title: 'Investment Solutions', body: 'Investment-product and opportunity workflows for clients comparing objectives, time horizon, liquidity needs, securities exposure, risk classification, suitability inputs, and portfolio role.', href: '/investment-solutions' },
+      { title: 'Digital Asset Management', body: 'Research-led digital asset management covering exposure design, market structure, custody-model review, operational controls, counterparty oversight, and governance requirements.', href: '/digital-assets' },
+      { title: 'Wealth Management', body: 'Wealth and portfolio management support for diversification, liquidity management, family and business-owner priorities, account reporting, and long-term financial decisions.', href: '/wealth-management' },
     ] },
-    philosophy: { heading: 'Built around judgement, governance, and restraint', eyebrow: 'Investment philosophy', body: '<p>The PerrymanFinance approach begins with objectives, constraints, suitability, liquidity, documentation, and risk. Opportunity entries are presented for review and discussion, not as offers, promises, or pressure-based calls to act.</p>' },
+    philosophy: { heading: 'Built around judgement, governance, and restraint', eyebrow: 'Investment philosophy', body: '<p>The PerrymanFinance approach begins with objectives, constraints, suitability, liquidity, documentation, and risk. Opportunity entries are presented as controlled product records for review, suitability discussion, risk disclosure, and client-service follow-up, not as guarantees or pressure-based calls to act.</p>' },
     opportunities: { heading: 'Featured investment opportunities', eyebrow: 'Catalogue', body: '<p>Review published opportunity themes with stated objectives, horizons, risk classifications, and disclaimers.</p>' },
     process: { heading: 'How the service conversation works', eyebrow: 'Process', items: [
-      { title: 'Explore services', body: 'Review investment, wealth-management, digital asset, and market-insight information.' },
+      { title: 'Explore services', body: 'Review investment, wealth-management, digital asset, market-insight, account-service, and reporting information.' },
       { title: 'Review risks', body: 'Consider whether a topic fits your objectives, liquidity needs, and tolerance for loss.' },
-      { title: 'Request consultation', body: 'Submit an enquiry so the team can respond with an appropriate information path.' },
-      { title: 'Proceed through review', body: 'Any account, suitability, documentation, or onboarding process occurs through approved offline procedures.' },
+      { title: 'Request consultation', body: 'Submit an enquiry, consultation request, or onboarding-intake request so the team can route the next step through approved procedures.' },
+      { title: 'Proceed through review', body: 'Account opening, suitability review, documentation, reporting setup, and any transaction-related process require approved controlled procedures beyond public content.' },
     ] },
     credibility: { heading: 'Why clients consider PerrymanFinance', eyebrow: 'Why PerrymanFinance', items: [
       { title: 'Integrated market perspective', body: 'Traditional financial markets and digital asset themes are discussed together for clearer allocation context.', href: '/insights' },
       { title: 'Risk-first communication', body: 'Service and opportunity content avoids guaranteed returns, fabricated performance, and artificial urgency.', href: '/risk-disclosure' },
-      { title: 'Controlled enquiry path', body: 'Public calls to action lead to information requests and consultation, preserving clear transaction and custody boundaries.', href: '/faq' },
+      { title: 'Controlled client pathway', body: 'Public calls to action route users toward consultation, onboarding intake, product review, and client-service follow-up while preserving clear boundaries around custody, execution, payment, and accounting capabilities.', href: '/faq' },
     ] },
     risk: { heading: 'Risk management is part of every discussion', eyebrow: 'Risk management', body: '<p>Investments can lose value, and digital assets may experience significant volatility, liquidity constraints, technology failures, cyber incidents, regulatory change, tax complexity, and third-party risk.</p>' },
     insights: { heading: 'Financial insights for better decisions', eyebrow: 'Insights', body: '<p>Read educational commentary on global markets, digital assets, liquidity, portfolio construction, governance, and risk.</p>' },
-    cta: { heading: 'Request information from PerrymanFinance', body: '<p>Start with a focused enquiry about investment services, wealth-management priorities, digital asset strategy, or a published opportunity.</p>' },
+    cta: { heading: 'Start a Consultation from PerrymanFinance', body: '<p>Start with a focused enquiry about investment services, securities products, wealth-management priorities, digital asset strategy, client account needs, reporting expectations, or a published opportunity.</p>' },
   };
   return { type, content: { slot, heading, ...(defaults[slot] ?? {}) } };
 }

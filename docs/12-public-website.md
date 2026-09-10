@@ -1,6 +1,6 @@
-# Public website and enquiry delivery
+# Public platform and enquiry delivery
 
-The public experience uses the existing PHP repository/service/controller APIs and React Query services. The shared public layout provides navigation, mobile menu, footer, skip link and risk-disclosure access. All specified public routes are registered, including a public 404; admin routes remain separately authenticated and lazy loaded. Financial copy is loaded from published CMS records. No financial execution features are introduced.
+The public experience uses the existing PHP repository/service/controller APIs and React Query services. The shared public layout provides navigation, mobile menu, footer, skip link and risk-disclosure access. All specified public routes are registered, including a public 404; admin routes remain separately authenticated and lazy loaded. Financial-services copy is loaded from published CMS records. The public surface should communicate PerrymanFinance as an operational financial services and securities platform while avoiding unverified regulatory, performance, custody, trading, payment, or guaranteed-return claims.
 
 ## Content contract
 
@@ -12,7 +12,7 @@ Home uses these ordered slots: `hero`, `positioning`, `services`, `philosophy`, 
 
 Public site settings: `risk_statement`, `contact_details`, and `enquiry_consent` are CMS-sanitized strings. Business and counsel must approve their content before publication. Contact submission is unavailable until public consent wording and an effective published privacy policy exist. Images remain dependent on the existing secure media-delivery work; private storage paths are not exposed as public image URLs.
 
-The local/development `PublicContentSeeder` creates the required public page records, ordered page sections, SEO metadata, public settings, investment categories, informational opportunity catalogue entries, article categories, tags, educational insight articles, FAQs, and clearly marked legal placeholders so the frontend can load all documented routes after `php backend/bin/seed.php`. Seeded legal and financial-adjacent copy is not production-approved content and must be replaced or reviewed before release.
+The local/development `PublicContentSeeder` creates the required public page records, ordered page sections, SEO metadata, public settings, investment categories, product and opportunity entries, article categories, tags, market insight articles, FAQs, and clearly marked legal placeholders so the frontend can load all documented routes after `php backend/bin/seed.php`. Seeded legal and financial-services copy is operationally realistic but not production-approved content and must be replaced or reviewed before release.
 
 ## Enquiry API
 
