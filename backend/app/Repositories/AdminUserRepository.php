@@ -30,7 +30,10 @@ final class AdminUserRepository extends AbstractRepository
 
     public function recordLogin(int $id, string $now): void
     {
-        $this->execute('UPDATE admin_users SET last_login_at = :now, updated_at = :now WHERE id = :id', ['now' => $now, 'id' => $id]);
+        $this->execute(
+            'UPDATE admin_users SET last_login_at = :last_login_at, updated_at = :updated_at WHERE id = :id',
+            ['last_login_at' => $now, 'updated_at' => $now, 'id' => $id],
+        );
     }
 
     public function updatePassword(int $id, string $hash, string $now): void

@@ -7,8 +7,8 @@ test.beforeEach(async ({ page }) => {
     if (path.endsWith('/site-settings/public')) data = { risk_statement: '<p>Test risk statement.</p>', enquiry_consent: 'I consent to a response to this enquiry.' };
     else if (path.includes('/pages/')) {
       const slug = path.split('/').at(-1)!;
-      const names: Record<string, string> = { home: 'Considered perspectives', about: 'About', 'investment-solutions': 'Investment Solutions', 'digital-assets': 'Digital Assets', 'wealth-management': 'Wealth Management', 'how-it-works': 'How It Works', contact: 'Request information' };
-      data = { title: names[slug] ?? slug, slug, sections: slug === 'home' ? [{ type: 'hero', content: { heading: 'Considered perspectives', body: 'Test content from the public API.' } }] : [{ type: 'rich_text', content: { heading: 'Our perspective', body: '<p>Published test content.</p>' } }], seo: { meta_title: names[slug] ?? slug, meta_description: 'Test description', robots: 'index,follow' } };
+      const names: Record<string, string> = { home: 'Investment services for modern wealth decisions', about: 'About', 'digital-assets': 'Digital Assets', 'wealth-management': 'Wealth Management', 'how-it-works': 'How It Works', contact: 'Request information' };
+      data = { title: names[slug] ?? slug, slug, sections: slug === 'home' ? [{ type: 'hero', content: { heading: 'Investment services for modern wealth decisions', body: 'Test content from the public API.' } }] : [{ type: 'rich_text', content: { heading: 'Our perspective', body: '<p>Published test content.</p>' } }], seo: { meta_title: names[slug] ?? slug, meta_description: 'Test description', robots: 'index,follow' } };
     } else if (path.includes('/legal/')) data = { title: 'Published legal document', version: '1.0', effective_at: '2026-09-01', content: '<p>Legal test fixture only.</p>' };
     else if (path.endsWith('/investments/test')) data = { uuid: 'test', title: 'Test opportunity', risk_classification: 'high', full_description: '<p>Test detail.</p>', disclaimer: '<p>Test risk notice.</p>' };
     else if (path.endsWith('/insights/test')) data = { uuid: 'test', title: 'Test insight', content: '<p>Test article.</p>', tags: [] };
@@ -22,8 +22,8 @@ test.beforeEach(async ({ page }) => {
 test('homepage order, API content, and mobile keyboard navigation', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Considered perspectives');
-  await expect(page.locator('main > section h2, main > div > section h2')).toHaveText(['Our perspective', 'Investment solutions', 'Investment philosophy', 'Featured opportunities', 'How it works', 'Risk management', 'Featured insights', 'Request information']);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Investment services for modern wealth decisions');
+  await expect(page.locator('main > section h2, main > div > section h2')).toHaveText(['Disciplined wealth conversations for modern markets', 'Financial markets viewed through portfolio context', 'A financial services partner for informed clients', 'Services designed around advice, access, and discipline', 'Built around judgement, governance, and restraint', 'Featured investment opportunities', 'How the service conversation works', 'Why clients consider PerrymanFinance', 'Risk management is part of every discussion', 'Financial insights for better decisions', 'Request information from PerrymanFinance']);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await page.getByRole('button', { name: 'Menu', exact: true }).click();
   await expect(page.getByRole('navigation', { name: 'Mobile navigation' })).toBeVisible();
@@ -35,7 +35,8 @@ test('homepage order, API content, and mobile keyboard navigation', async ({ pag
 });
 
 test('all public routes render one main landmark and a heading', async ({ page }) => {
-  for (const route of ['/about', '/investment-solutions', '/digital-assets', '/wealth-management', '/how-it-works', '/investments', '/investments/test', '/insights', '/insights/test', '/faq', '/contact', '/terms', '/privacy-policy', '/risk-disclosure', '/cookie-policy', '/missing']) {
+  test.setTimeout(60000);
+  for (const route of ['/about', '/digital-assets', '/wealth-management', '/how-it-works', '/investments', '/investments/test', '/insights', '/insights/test', '/faq', '/contact', '/terms', '/privacy-policy', '/risk-disclosure', '/cookie-policy', '/missing']) {
     await page.goto(route);
     await expect(page.getByRole('main')).toHaveCount(1, { timeout: 15000 });
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();

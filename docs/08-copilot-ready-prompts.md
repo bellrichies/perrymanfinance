@@ -12,7 +12,7 @@ You are working on PerrymanFinance.
 Before writing or modifying code, read the relevant files under /docs and inspect the existing implementation. Treat the documentation and existing architectural conventions as the source of truth.
 
 Project stack:
-- PHP 8.3+ custom OOP MVC backend
+- PHP 8.2+ custom OOP MVC backend
 - RESTful JSON API
 - PSR-4 / PSR-12
 - SOLID
@@ -91,7 +91,7 @@ Implement PerrymanFinance Phase 1: repository and engineering foundation.
 
 Requirements:
 - create /backend, /web, /docs, /.github/workflows;
-- configure local development for installed PHP 8.3+, Composer, MySQL, Node/npm, and an independently selected local SMTP catcher when email is implemented;
+- configure local development for installed PHP 8.2+, Composer, MySQL, Node/npm, and an independently selected local SMTP catcher when email is implemented;
 - establish shared Linux hosting requirements for PHP extensions, document roots, URL rewriting, environment configuration, cron, writable storage, and prebuilt frontend assets;
 - create .env.example files;
 - create Makefile commands for up, down, install, migrate, seed, test, lint, build;
@@ -772,7 +772,7 @@ CD:
 - rollback procedure.
 
 Infrastructure:
-- shared Linux hosting with PHP 8.3+ and MySQL 8+/compatible MariaDB;
+- shared Linux hosting with PHP 8.2+ and MySQL 8+/compatible MariaDB;
 - provider-supported Apache/LiteSpeed/Nginx URL rewriting and security configuration;
 - prebuilt frontend assets without a production Node.js dependency;
 - HTTPS;

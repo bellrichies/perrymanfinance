@@ -58,10 +58,10 @@ All financial descriptions, risk notices, and legal content must be CMS-editable
 
 Build a modular monolith with two application surfaces:
 
-- `backend/`: PHP 8.3+ custom OOP MVC REST API;
+- `backend/`: PHP 8.2+ custom OOP MVC REST API;
 - `web/`: React, TypeScript, Vite, and Tailwind CSS application.
 
-Supporting areas are `.github/workflows/` and `docs/`. Use MySQL 8+ with InnoDB and `utf8mb4`. Development uses locally installed PHP 8.3+, Composer, MySQL, and Node tooling. Production targets shared Linux hosting and deploys prebuilt frontend assets with production Composer dependencies. Do not assume access to long-running workers, Redis, root privileges, or web-server configuration beyond the selected host's capabilities.
+Supporting areas are `.github/workflows/` and `docs/`. Use MySQL 8+ with InnoDB and `utf8mb4`. Development uses locally installed PHP 8.2+, Composer, MySQL, and Node tooling. Production targets shared Linux hosting and deploys prebuilt frontend assets with production Composer dependencies. Do not assume access to long-running workers, Redis, root privileges, or web-server configuration beyond the selected host's capabilities.
 
 Keep public, admin, and future client-portal concerns isolated. Do not retrofit future financial functions into CMS modules.
 

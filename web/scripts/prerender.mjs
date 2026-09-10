@@ -16,7 +16,7 @@ async function get(endpoint) {
   return body;
 }
 const routes = new Map();
-for (const slug of ['home', 'about', 'investment-solutions', 'digital-assets', 'wealth-management', 'how-it-works', 'contact']) {
+for (const slug of ['home', 'about', 'digital-assets', 'wealth-management', 'how-it-works', 'contact']) {
   const { data } = await get(`/pages/${slug}`);
   routes.set(slug === 'home' ? '/' : `/${slug}`, data.seo);
 }

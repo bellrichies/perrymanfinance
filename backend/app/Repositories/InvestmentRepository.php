@@ -27,9 +27,11 @@ final class InvestmentRepository extends AbstractRepository
     /** @param array<string, mixed> $data */
     public function insertCategory(array $data): int
     {
+        $params = [...$data, 'created_at' => $data['now'], 'updated_at' => $data['now']];
+        unset($params['now']);
         $this->execute(
-            'INSERT INTO investment_categories (name,slug,description,position,created_at,updated_at) VALUES (:name,:slug,:description,:position,:now,:now)',
-            $data,
+            'INSERT INTO investment_categories (name,slug,description,position,created_at,updated_at) VALUES (:name,:slug,:description,:position,:created_at,:updated_at)',
+            $params,
         );
         return (int) $this->connection()->lastInsertId();
     }
@@ -78,8 +80,9 @@ final class InvestmentRepository extends AbstractRepository
             $params['featured'] = $filters['featured'];
         }
         if (isset($filters['search'])) {
-            $where[] = '(i.title LIKE :search OR i.short_description LIKE :search)';
-            $params['search'] = '%' . $filters['search'] . '%';
+            $where[] = '(i.title LIKE :search_title OR i.short_description LIKE :search_description)';
+            $params['search_title'] = '%' . $filters['search'] . '%';
+            $params['search_description'] = '%' . $filters['search'] . '%';
         }
         $clause = implode(' AND ', $where);
         $total = (int) $this->execute(
@@ -117,10 +120,12 @@ final class InvestmentRepository extends AbstractRepository
     /** @param array<string, mixed> $data */
     public function insertOpportunity(array $data): int
     {
+        $params = [...$data, 'created_by' => $data['actor'], 'updated_by' => $data['actor'], 'created_at' => $data['now'], 'updated_at' => $data['now']];
+        unset($params['actor'], $params['now']);
         $this->execute(
             'INSERT INTO investment_opportunities (uuid,category_id,title,slug,short_description,full_description,strategy_summary,investment_objective,investment_horizon,risk_classification,minimum_investment_display,currency_display,status,featured,cover_media_id,disclaimer,published_at,created_by,updated_by,created_at,updated_at) '
-            . 'VALUES (:uuid,:category,:title,:slug,:short,:full,:strategy,:objective,:horizon,:risk,:minimum,:currency,:status,:featured,:cover,:disclaimer,:published,:actor,:actor,:now,:now)',
-            $data,
+            . 'VALUES (:uuid,:category,:title,:slug,:short,:full,:strategy,:objective,:horizon,:risk,:minimum,:currency,:status,:featured,:cover,:disclaimer,:published,:created_by,:updated_by,:created_at,:updated_at)',
+            $params,
         );
         return (int) $this->connection()->lastInsertId();
     }

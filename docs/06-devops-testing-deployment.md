@@ -18,7 +18,7 @@ Never share production secrets with staging.
 Production uses shared Linux hosting. The host must provide:
 
 ```text
-PHP 8.3+ and required PHP extensions
+PHP 8.2+ and required PHP extensions
 MySQL 8+ or compatible MariaDB
 HTTPS and URL rewriting
 cron scheduling

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="107" height="107" viewBox="0 0 107 107" fill="none">
+  <style>
+    @keyframes fadeInOut {
+        0%, 100% { opacity: 0; }
+        50% { opacity: 1; }
+    }
+    path:nth-child(1) {
+        animation: fadeInOut 3s ease-in-out infinite;
+    }
+    path:nth-child(2) {
+        animation: fadeInOut 3s ease-in-out 1.5s infinite;
+    }
+  </style>
+  <g clip-path="url(#clip0_17_2518)">
+    <path d="M39.0359 0.828003C33.6461 30.105 29.2768 34.4741 0 39.8639C29.277 45.2537 33.6461 49.6228 39.0359 78.8998C44.4257 49.6228 48.7948 45.2537 78.0718 39.8639C48.7948 34.4741 44.4255 30.105 39.0359 0.828003Z" fill="#12FF99"/>
+    <path d="M81.4035 55.7499C77.9761 74.3689 75.1969 77.1478 56.5782 80.5752C75.1969 84.0029 77.9761 86.7818 81.4035 105.401C84.8309 86.7818 87.6101 84.0026 106.229 80.5752C87.6096 77.1478 84.8311 74.3689 81.4035 55.7499Z" fill="#DBFF47"/>
+  </g>
+  <defs>
+    <clipPath id="clip0_17_2518">
+      <rect width="106.229" height="106.229" fill="white"/>
+    </clipPath>
+  </defs>
+</svg>

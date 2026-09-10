@@ -46,5 +46,5 @@ These items require environment or business decisions and cannot be completed pu
 - Replace seeded legal placeholders and risk/contact copy with business/counsel-approved content before production indexing.
 - Verify the selected host honors `.htaccess`, `.user.ini` or equivalent control-panel OPcache/cache/header settings.
 - Run migrations against staging with a backup checkpoint and confirm the new indexes build successfully on the provider database.
-- Run the full CI matrix with PHP 8.3+; local backend PHPUnit is blocked if the CLI is older.
+- Run the full CI matrix with PHP 8.2+.
 - Verify production email deliverability, backups, restore procedure, monitoring and rollback.

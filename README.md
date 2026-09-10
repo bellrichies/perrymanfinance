@@ -4,7 +4,7 @@ PerrymanFinance is an institutional-style digital asset investment and wealth-ma
 
 ## Runtime and development requirements
 
-- PHP 8.3+ with PDO MySQL and the extensions required by Composer
+- PHP 8.2+ with PDO MySQL and the extensions required by Composer
 - Composer 2
 - MySQL 8+ or a compatible MariaDB version provided by the host
 - Node.js 22+ and npm for local development and CI builds
@@ -24,7 +24,7 @@ composer --working-dir=backend install
 npm --prefix web ci
 ```
 
-Confirm `php -v` reports 8.3 or newer (an older XAMPP PHP on PATH must be replaced in that terminal's PATH).
+Confirm `php -v` reports 8.2 or newer (an older XAMPP PHP on PATH must be replaced in that terminal's PATH).
 Enable PDO MySQL, OpenSSL, Mbstring, Fileinfo and GD; tests also need PDO SQLite and DOM/XML/XMLWriter.
 Start your installed MySQL service. Create the local database and user using an administrative MySQL session:
 
@@ -103,7 +103,7 @@ The equivalent Composer/npm/PHP commands are defined directly in the [Makefile](
 
 ## Shared Linux hosting deployment
 
-Before selecting or configuring a host, confirm it supports PHP 8.3+, the required PHP extensions, MySQL/MariaDB, HTTPS, URL rewriting, cron jobs, SSH or a secure deployment method, environment configuration outside the public directory, and writable application storage.
+Before selecting or configuring a host, confirm it supports PHP 8.2+, the required PHP extensions, MySQL/MariaDB, HTTPS, URL rewriting, cron jobs, SSH or a secure deployment method, environment configuration outside the public directory, and writable application storage.
 
 Recommended layout when the hosting account permits separate document roots:
 
@@ -131,7 +131,7 @@ A provider-specific deployment and rewrite configuration must be documented afte
 
 ## Structure
 
-- `backend/`: PHP 8.3 REST API and backend tests
+- `backend/`: PHP 8.2 REST API and backend tests
 - `web/`: React, TypeScript, Vite, Tailwind CSS and frontend tests
 - `docs/`: product, architecture, security, delivery, and implementation guidance
 - `.github/workflows/`: build and quality verification

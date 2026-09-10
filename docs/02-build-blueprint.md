@@ -492,14 +492,14 @@ Admin:
 Required local tools/services:
 
 ```text
-PHP 8.3+ CLI with required extensions
+PHP 8.2+ CLI with required extensions
 Composer 2
 MySQL 8+ or compatible MariaDB
 Node.js/npm for frontend development and builds
 local SMTP catcher or test SMTP account when email is implemented
 ```
 
-Production is deployed to shared Linux hosting. The selected plan must provide PHP 8.3+, required extensions, MySQL/MariaDB, HTTPS, URL rewriting, cron, secure environment configuration, writable non-executable storage, backups, and a supported deployment mechanism. Frontend assets are built in CI and uploaded; Node.js is not required at runtime.
+Production is deployed to shared Linux hosting. The selected plan must provide PHP 8.2+, required extensions, MySQL/MariaDB, HTTPS, URL rewriting, cron, secure environment configuration, writable non-executable storage, backups, and a supported deployment mechanism. Frontend assets are built in CI and uploaded; Node.js is not required at runtime.
 
 Optional local tools:
 

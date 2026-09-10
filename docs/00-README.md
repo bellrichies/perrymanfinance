@@ -37,7 +37,7 @@ The MVP is intentionally a **corporate/investment information and lead-generatio
 
 ### Backend
 
-- PHP 8.3+
+- PHP 8.2+
 - Custom OOP MVC framework
 - RESTful JSON API
 - Composer / PSR-4 autoloading
@@ -66,7 +66,7 @@ The MVP is intentionally a **corporate/investment information and lead-generatio
 
 ### Infrastructure
 
-- Shared Linux hosting with PHP 8.3+ and MySQL 8+/compatible MariaDB
+- Shared Linux hosting with PHP 8.2+ and MySQL 8+/compatible MariaDB
 - Apache, LiteSpeed, or Nginx as provided by the hosting platform
 - Node.js tooling in development/CI; deploy prebuilt frontend assets
 - GitHub Actions

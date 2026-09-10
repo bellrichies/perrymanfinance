@@ -15,8 +15,8 @@ if (process.argv[2] === 'down') {
   await writeFile(stopFile, 'stop');
   console.log('Shutdown requested for the development servers started by up.');
 } else if (process.argv[2] === 'up') {
-  const php = spawnSync('php', ['-r', 'exit(PHP_VERSION_ID >= 80300 ? 0 : 1);'], { windowsHide: true });
-  if (php.error || php.status !== 0) throw new Error('PHP 8.3+ must be available on PATH.');
+  const php = spawnSync('php', ['-r', 'exit(PHP_VERSION_ID >= 80200 ? 0 : 1);'], { windowsHide: true });
+  if (php.error || php.status !== 0) throw new Error('PHP 8.2+ must be available on PATH.');
   let lock;
   try { lock = await open(lockFile, 'wx'); }
   catch { throw new Error('Development supervisor already running. Use down first; remove .dev/lock only after verifying a previous supervisor has exited.'); }

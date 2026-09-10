@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Perryman Finance">
+  <rect width="64" height="64" rx="12" fill="#030812"/>
+  <path d="M16 46V14h20c7 0 12 5 12 11s-5 11-12 11H27v10H16Zm11-20h8c2 0 4-1 4-3s-2-4-4-4h-8v7Z" fill="#b8eadc"/>
+  <path d="M35 47c8-2 13-7 16-15h-9c-2 4-5 6-9 7l2 8Z" fill="#38bdf8"/>
+</svg>

@@ -10,7 +10,7 @@ The MVP is limited to a public corporate and educational website, an information
 
 ### Confirmed architectural assumptions
 
-- The system is a modular monolith with two application surfaces: a PHP 8.3+ REST API under `backend/` and a React/TypeScript web application under `web/`.
+- The system is a modular monolith with two application surfaces: a PHP 8.2+ REST API under `backend/` and a React/TypeScript web application under `web/`.
 - MySQL 8+ with InnoDB, `utf8mb4`, foreign keys, versioned migrations, and UTC timestamps is the system of record.
 - Public and admin experiences share the web application but use separate layouts, route trees, API policies, and authorization boundaries.
 - All API routes use `/api/v1`; successful and failed responses use the documented JSON envelopes.
@@ -18,7 +18,7 @@ The MVP is limited to a public corporate and educational website, an information
 - Pages, articles, investment opportunities, and legal documents use `draft -> review -> published -> archived`. Public APIs return published records only.
 - Admin authorization is deny-by-default and enforced by the backend. Frontend permission-aware controls are usability aids, not security controls.
 - A single API client and a TanStack Query-style server-state layer are used by the frontend.
-- Local development uses installed PHP 8.3+, Composer, MySQL, and Node tooling. An independent SMTP catcher or test account is configured when email work begins. Redis and continuously running workers are not assumed on shared hosting.
+- Local development uses installed PHP 8.2+, Composer, MySQL, and Node tooling. An independent SMTP catcher or test account is configured when email work begins. Redis and continuously running workers are not assumed on shared hosting.
 - SMTP through a PHPMailer abstraction is the initial email integration. Email failure cannot roll back or lose a valid persisted enquiry.
 - Media is initially handled through an abstracted storage interface so local non-executable storage can later be replaced by object storage without changing domain workflows.
 - Public CTAs use terms such as “View Details,” “Learn More,” and “Request Information.”
@@ -287,10 +287,10 @@ These gaps do not justify inventing behavior. Resolve each before its dependent 
 ### Engineering foundation and architecture
 
 - [ ] Planned monorepo directories, root tooling and setup documentation exist.
-- [ ] Local PHP 8.3+, Composer, MySQL, Node/npm, and optional SMTP test tooling are documented and usable.
+- [ ] Local PHP 8.2+, Composer, MySQL, Node/npm, and optional SMTP test tooling are documented and usable.
 - [ ] Shared-hosting requirements, document roots, rewrite behavior, cron support, writable paths, and deployment access are verified.
 - [ ] Safe `.env.example` files exist; production debug defaults off; no secrets are committed.
-- [ ] PHP 8.3+, Composer PSR-4/PSR-12, strict types, static analysis and PHPUnit are configured.
+- [ ] PHP 8.2+, Composer PSR-4/PSR-12, strict types, static analysis and PHPUnit are configured.
 - [ ] React, TypeScript, Vite, Tailwind, lint/typecheck/component/E2E tools and query client are configured.
 - [ ] CI runs syntax/style/static analysis, tests, production build and dependency/security checks.
 - [ ] Migration/seed commands are deterministic, safe and documented; no destructive production reset exists.

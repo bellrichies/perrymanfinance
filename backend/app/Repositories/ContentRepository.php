@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace PerrymanFinance\Repositories;
 
-use PDO;
+use DateTimeImmutable;
+use DateTimeZone;
 
 final class ContentRepository extends AbstractRepository
 {
@@ -19,7 +20,7 @@ final class ContentRepository extends AbstractRepository
     {
         $sql = 'SELECT * FROM pages WHERE ' . ($public ? 'slug = :key AND status = \'published\' AND published_at IS NOT NULL AND published_at <= :now' : 'uuid = :key')
             . ' AND deleted_at IS NULL LIMIT 1';
-        $row = $this->execute($sql, $public ? ['key' => $uuid, 'now' => gmdate('Y-m-d H:i:s.u')] : ['key' => $uuid])->fetch();
+        $row = $this->execute($sql, $public ? ['key' => $uuid, 'now' => $this->now()] : ['key' => $uuid])->fetch();
         if (!is_array($row)) {
             return null;
         }
@@ -34,10 +35,12 @@ final class ContentRepository extends AbstractRepository
     /** @param array<string, mixed> $data */
     public function insertPage(array $data): int
     {
+        $params = [...$data, 'created_by' => $data['actor'], 'updated_by' => $data['actor'], 'created_at' => $data['now'], 'updated_at' => $data['now']];
+        unset($params['actor'], $params['now']);
         $this->execute(
             'INSERT INTO pages (uuid,title,slug,page_type,status,excerpt,content_json,published_at,created_by,updated_by,created_at,updated_at) '
-            . 'VALUES (:uuid,:title,:slug,:type,:status,:excerpt,:content,:published,:actor,:actor,:now,:now)',
-            $data,
+            . 'VALUES (:uuid,:title,:slug,:type,:status,:excerpt,:content,:published,:created_by,:updated_by,:created_at,:updated_at)',
+            $params,
         );
         return (int) $this->connection()->lastInsertId();
     }
@@ -60,15 +63,15 @@ final class ContentRepository extends AbstractRepository
         foreach ($sections as $position => $section) {
             $this->execute(
                 'INSERT INTO page_sections (page_id,section_type,position,content_json,created_at,updated_at) '
-                . 'VALUES (:page,:type,:position,:content,:now,:now)',
-                ['page' => $pageId, 'type' => $section['type'], 'position' => $position, 'content' => json_encode($section['content'], JSON_THROW_ON_ERROR), 'now' => $now],
+                . 'VALUES (:page,:type,:position,:content,:created_at,:updated_at)',
+                ['page' => $pageId, 'type' => $section['type'], 'position' => $position, 'content' => json_encode($section['content'], JSON_THROW_ON_ERROR), 'created_at' => $now, 'updated_at' => $now],
             );
         }
     }
 
     public function deletePage(int $id, int $actor, string $now): void
     {
-        $this->execute('UPDATE pages SET deleted_at=:now,updated_by=:actor,updated_at=:now WHERE id=:id', ['now' => $now, 'actor' => $actor, 'id' => $id]);
+        $this->execute('UPDATE pages SET deleted_at=:deleted_at,updated_by=:actor,updated_at=:updated_at WHERE id=:id', ['deleted_at' => $now, 'updated_at' => $now, 'actor' => $actor, 'id' => $id]);
     }
 
     /** @return list<array<string, mixed>> */
@@ -83,7 +86,7 @@ final class ContentRepository extends AbstractRepository
         $sql = $public
             ? "SELECT * FROM legal_documents WHERE slug=:key AND status='published' AND (effective_at IS NULL OR effective_at <= :now) ORDER BY effective_at DESC, published_at DESC LIMIT 1"
             : 'SELECT * FROM legal_documents WHERE uuid=:key LIMIT 1';
-        $params = $public ? ['key' => $key, 'now' => gmdate('Y-m-d H:i:s.u')] : ['key' => $key];
+        $params = $public ? ['key' => $key, 'now' => $this->now()] : ['key' => $key];
         $row = $this->execute($sql, $params)->fetch();
         return is_array($row) ? $row : null;
     }
@@ -91,10 +94,12 @@ final class ContentRepository extends AbstractRepository
     /** @param array<string, mixed> $data */
     public function insertLegal(array $data): void
     {
+        $params = [...$data, 'created_by' => $data['actor'], 'updated_by' => $data['actor'], 'created_at' => $data['now'], 'updated_at' => $data['now']];
+        unset($params['actor'], $params['now']);
         $this->execute(
             'INSERT INTO legal_documents (uuid,document_type,title,slug,version,content,effective_at,status,published_at,created_by,updated_by,created_at,updated_at) '
-            . 'VALUES (:uuid,:type,:title,:slug,:version,:content,:effective,:status,:published,:actor,:actor,:now,:now)',
-            $data,
+            . 'VALUES (:uuid,:type,:title,:slug,:version,:content,:effective,:status,:published,:created_by,:updated_by,:created_at,:updated_at)',
+            $params,
         );
     }
 
@@ -125,7 +130,12 @@ final class ContentRepository extends AbstractRepository
         $existing = $this->execute('SELECT id FROM site_settings WHERE setting_key=:key', ['key' => $key])->fetchColumn();
         $params = ['key' => $key, 'value' => json_encode($value, JSON_THROW_ON_ERROR), 'public' => $public ? 1 : 0, 'actor' => $actor, 'now' => $now];
         if ($existing === false) {
-            $this->execute('INSERT INTO site_settings (setting_key,value_json,is_public,updated_by,created_at,updated_at) VALUES (:key,:value,:public,:actor,:now,:now)', $params);
+            $insertParams = [...$params, 'created_at' => $now, 'updated_at' => $now];
+            unset($insertParams['now']);
+            $this->execute(
+                'INSERT INTO site_settings (setting_key,value_json,is_public,updated_by,created_at,updated_at) VALUES (:key,:value,:public,:actor,:created_at,:updated_at)',
+                $insertParams,
+            );
             return;
         }
         $this->execute('UPDATE site_settings SET value_json=:value,is_public=:public,updated_by=:actor,updated_at=:now WHERE setting_key=:key', $params);
@@ -150,9 +160,11 @@ final class ContentRepository extends AbstractRepository
         $column = $this->ownerColumn($type);
         $existing = $this->seo($type, $ownerId);
         if ($existing === null) {
+            $insertParams = ['owner' => $ownerId, ...$data, 'created_at' => $data['now'], 'updated_at' => $data['now']];
+            unset($insertParams['now']);
             $this->execute(
-                "INSERT INTO seo_metadata ({$column},meta_title,meta_description,canonical_url,robots,open_graph_json,social_media_id,created_at,updated_at) VALUES (:owner,:title,:description,:canonical,:robots,:og,:social,:now,:now)",
-                ['owner' => $ownerId, ...$data],
+                "INSERT INTO seo_metadata ({$column},meta_title,meta_description,canonical_url,robots,open_graph_json,social_media_id,created_at,updated_at) VALUES (:owner,:title,:description,:canonical,:robots,:og,:social,:created_at,:updated_at)",
+                $insertParams,
             );
             return;
         }
@@ -218,8 +230,8 @@ final class ContentRepository extends AbstractRepository
         if ($existing === false) {
             $this->execute(
                 'INSERT INTO redirects (source_path,destination_path,status_code,is_active,created_by,created_at,updated_at)
-                VALUES (:source,:destination,:status,1,:actor,:now,:now)',
-                ['source' => $sourcePath, 'destination' => $destinationPath, 'status' => $statusCode, 'actor' => $actor, 'now' => $now],
+                VALUES (:source,:destination,:status,1,:actor,:created_at,:updated_at)',
+                ['source' => $sourcePath, 'destination' => $destinationPath, 'status' => $statusCode, 'actor' => $actor, 'created_at' => $now, 'updated_at' => $now],
             );
             return;
         }
@@ -241,6 +253,11 @@ final class ContentRepository extends AbstractRepository
     private function ownerColumn(string $type): string
     {
         return $this->allowedIdentifier($type . '_id', ['page_id', 'legal_document_id', 'investment_opportunity_id', 'article_id']);
+    }
+
+    private function now(): string
+    {
+        return (new DateTimeImmutable('now', new DateTimeZone('UTC')))->format('Y-m-d H:i:s.u');
     }
 
     /**

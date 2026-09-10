@@ -49,11 +49,11 @@ final class ReferenceDataSeeder implements Seeder
         ];
         $mappingStatement = $connection->prepare(
             'INSERT IGNORE INTO role_permissions (role_id, permission_id, created_at) '
-            . 'SELECT r.id, p.id, :created_at FROM roles r CROSS JOIN permissions p WHERE r.name = :role AND p.name = :permission',
+            . 'SELECT r.id, p.id, :mapping_created_at FROM roles r CROSS JOIN permissions p WHERE r.name = :role AND p.name = :permission',
         );
         foreach ($assignments as $role => $grants) {
             foreach ($grants as $permission) {
-                $mappingStatement->execute(['created_at' => $now, 'role' => $role, 'permission' => $permission]);
+                $mappingStatement->execute(['mapping_created_at' => $now, 'role' => $role, 'permission' => $permission]);
             }
         }
     }

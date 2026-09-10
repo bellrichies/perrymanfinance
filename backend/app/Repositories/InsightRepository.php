@@ -25,7 +25,9 @@ final class InsightRepository extends AbstractRepository
     /** @param array<string, mixed> $data */
     public function insertCategory(array $data): int
     {
-        $this->execute('INSERT INTO article_categories (name,slug,description,created_at,updated_at) VALUES (:name,:slug,:description,:now,:now)', $data);
+        $params = [...$data, 'created_at' => $data['now'], 'updated_at' => $data['now']];
+        unset($params['now']);
+        $this->execute('INSERT INTO article_categories (name,slug,description,created_at,updated_at) VALUES (:name,:slug,:description,:created_at,:updated_at)', $params);
         return (int) $this->connection()->lastInsertId();
     }
 
@@ -56,7 +58,9 @@ final class InsightRepository extends AbstractRepository
     /** @param array<string, mixed> $data */
     public function insertTag(array $data): int
     {
-        $this->execute('INSERT INTO tags (name,slug,created_at,updated_at) VALUES (:name,:slug,:now,:now)', $data);
+        $params = [...$data, 'created_at' => $data['now'], 'updated_at' => $data['now']];
+        unset($params['now']);
+        $this->execute('INSERT INTO tags (name,slug,created_at,updated_at) VALUES (:name,:slug,:created_at,:updated_at)', $params);
         return (int) $this->connection()->lastInsertId();
     }
 
@@ -101,8 +105,9 @@ final class InsightRepository extends AbstractRepository
             $params['featured'] = $filters['featured'];
         }
         if (isset($filters['search'])) {
-            $where[] = '(a.title LIKE :search OR a.excerpt LIKE :search)';
-            $params['search'] = '%' . $filters['search'] . '%';
+            $where[] = '(a.title LIKE :search_title OR a.excerpt LIKE :search_excerpt)';
+            $params['search_title'] = '%' . $filters['search'] . '%';
+            $params['search_excerpt'] = '%' . $filters['search'] . '%';
         }
         $clause = implode(' AND ', $where);
         $total = (int) $this->execute("SELECT COUNT(*) FROM articles a JOIN article_categories c ON c.id=a.category_id WHERE {$clause}", $params)->fetchColumn();
@@ -137,10 +142,12 @@ final class InsightRepository extends AbstractRepository
     /** @param array<string, mixed> $data */
     public function insertArticle(array $data): int
     {
+        $params = [...$data, 'created_at' => $data['now'], 'updated_at' => $data['now']];
+        unset($params['now']);
         $this->execute(
             'INSERT INTO articles (uuid,category_id,title,slug,excerpt,content,cover_media_id,author_id,status,featured,published_at,created_at,updated_at) '
-            . 'VALUES (:uuid,:category,:title,:slug,:excerpt,:content,:cover,:author,:status,:featured,:published,:now,:now)',
-            $data,
+            . 'VALUES (:uuid,:category,:title,:slug,:excerpt,:content,:cover,:author,:status,:featured,:published,:created_at,:updated_at)',
+            $params,
         );
         return (int) $this->connection()->lastInsertId();
     }
@@ -183,9 +190,9 @@ final class InsightRepository extends AbstractRepository
             . "LEFT JOIN media_assets m ON m.id=a.cover_media_id AND m.deleted_at IS NULL "
             . "LEFT JOIN article_tags at ON at.article_id=a.id "
             . "WHERE a.id<>:id AND a.deleted_at IS NULL AND a.status='published' AND a.published_at IS NOT NULL AND a.published_at<=:now "
-            . "AND (a.category_id=:category OR at.tag_id IN (SELECT tag_id FROM article_tags WHERE article_id=:id)) "
+            . "AND (a.category_id=:category OR at.tag_id IN (SELECT tag_id FROM article_tags WHERE article_id=:tag_article_id)) "
             . "ORDER BY a.published_at DESC,a.id DESC LIMIT {$limit}",
-            ['id' => (int) $article['id'], 'category' => (int) $article['category_id'], 'now' => $this->now()],
+            ['id' => (int) $article['id'], 'tag_article_id' => (int) $article['id'], 'category' => (int) $article['category_id'], 'now' => $this->now()],
         )->fetchAll();
         return $this->withTags(array_values($rows));
     }
@@ -218,7 +225,12 @@ final class InsightRepository extends AbstractRepository
     /** @param array<string,mixed> $data */
     public function insertFaq(array $data): int
     {
-        $this->execute('INSERT INTO faqs (question,answer,category,position,status,published_at,created_by,updated_by,created_at,updated_at) VALUES (:question,:answer,:category,:position,:status,:published,:actor,:actor,:now,:now)', $data);
+        $params = [...$data, 'created_by' => $data['actor'], 'updated_by' => $data['actor'], 'created_at' => $data['now'], 'updated_at' => $data['now']];
+        unset($params['actor'], $params['now']);
+        $this->execute(
+            'INSERT INTO faqs (question,answer,category,position,status,published_at,created_by,updated_by,created_at,updated_at) VALUES (:question,:answer,:category,:position,:status,:published,:created_by,:updated_by,:created_at,:updated_at)',
+            $params,
+        );
         return (int) $this->connection()->lastInsertId();
     }
 

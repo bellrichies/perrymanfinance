@@ -15,10 +15,12 @@ final class MediaRepository extends AbstractRepository
     /** @param array<string, mixed> $data */
     public function create(array $data): void
     {
+        $params = [...$data, 'created_at' => $data['now'], 'updated_at' => $data['now']];
+        unset($params['now']);
         $this->execute(
             'INSERT INTO media_assets (uuid,disk,path,original_name,mime_type,byte_size,width,height,alt_text,uploaded_by,created_at,updated_at) '
-            . 'VALUES (:uuid,:disk,:path,:name,:mime,:size,:width,:height,:alt,:actor,:now,:now)',
-            $data,
+            . 'VALUES (:uuid,:disk,:path,:name,:mime,:size,:width,:height,:alt,:actor,:created_at,:updated_at)',
+            $params,
         );
     }
 
@@ -31,7 +33,7 @@ final class MediaRepository extends AbstractRepository
 
     public function delete(string $uuid, string $now): void
     {
-        $this->execute('UPDATE media_assets SET deleted_at=:now,updated_at=:now WHERE uuid=:uuid', ['uuid' => $uuid, 'now' => $now]);
+        $this->execute('UPDATE media_assets SET deleted_at=:deleted_at,updated_at=:updated_at WHERE uuid=:uuid', ['uuid' => $uuid, 'deleted_at' => $now, 'updated_at' => $now]);
     }
 
     public function updateAltText(string $uuid, ?string $alt, string $now): void
