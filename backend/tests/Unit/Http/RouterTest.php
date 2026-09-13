@@ -27,7 +27,9 @@ final class RouterTest extends TestCase
             );
         });
         $response = $router->dispatch(new Request('GET', '/api/v1/articles/market-update'));
-        self::assertSame('market-update', $response->body()['data']['slug']);
+        $body = $response->body();
+        self::assertIsArray($body);
+        self::assertSame('market-update', $body['data']['slug']);
     }
     public function testKnownPathWithWrongMethodThrowsMethodNotAllowed(): void
     {

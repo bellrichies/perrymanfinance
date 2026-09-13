@@ -23,6 +23,8 @@ final class HealthEndpointTest extends TestCase
         }, $config);
         $response = $app->handle(new Request('GET', '/api/v1/health'));
         self::assertSame(200, $response->status());
-        self::assertSame('test', $response->body()['data']['version']);
+        $body = $response->body();
+        self::assertIsArray($body);
+        self::assertSame('test', $body['data']['version']);
     }
 }

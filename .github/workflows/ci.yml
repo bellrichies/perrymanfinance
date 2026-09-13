@@ -10,6 +10,7 @@ permissions:
 
 jobs:
   backend:
+    name: Backend quality gates
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -24,11 +25,17 @@ jobs:
           tools: composer:v2
       - run: composer validate --strict
       - run: composer install --no-interaction --prefer-dist
-      - run: composer lint
+      - name: PHP syntax
+        run: find app bootstrap database routes tests bin -name '*.php' -print0 | xargs -0 -n1 php -l
+      - name: PHP style
+        run: composer cs
+      - name: Static analysis
+        run: composer analyse
       - run: composer test
       - run: composer audit --locked
 
   frontend:
+    name: Frontend quality gates
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -49,3 +56,29 @@ jobs:
       - run: npm run test:e2e
       - run: npm run test:prerender
       - run: npm audit --audit-level=high
+
+  release-artifact:
+    name: Release artifact dry run
+    runs-on: ubuntu-latest
+    needs: [backend, frontend]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo_mysql, mbstring, fileinfo, gd, openssl
+          coverage: none
+          tools: composer:v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: ./scripts/package-release.sh ci-${{ github.sha }}
+        env:
+          SKIP_PRERENDER: '1'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: perrymanfinance-ci-artifact
+          path: build/perrymanfinance-ci-${{ github.sha }}.zip
+          retention-days: 7

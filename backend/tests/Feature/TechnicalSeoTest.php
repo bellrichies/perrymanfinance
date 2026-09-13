@@ -104,7 +104,8 @@ final class TechnicalSeoTest extends TestCase
 
     private function createSchema(): void
     {
-        foreach ([
+        foreach (
+            [
             'CREATE TABLE pages (id INTEGER PRIMARY KEY AUTOINCREMENT,uuid TEXT,title TEXT,slug TEXT,status TEXT,published_at TEXT,updated_at TEXT,deleted_at TEXT)',
             'CREATE TABLE legal_documents (id INTEGER PRIMARY KEY AUTOINCREMENT,title TEXT,slug TEXT,status TEXT,effective_at TEXT,updated_at TEXT)',
             'CREATE TABLE investment_opportunities (id INTEGER PRIMARY KEY AUTOINCREMENT,title TEXT,slug TEXT,status TEXT,published_at TEXT,updated_at TEXT,deleted_at TEXT)',
@@ -112,7 +113,8 @@ final class TechnicalSeoTest extends TestCase
             'CREATE TABLE faqs (id INTEGER PRIMARY KEY AUTOINCREMENT,question TEXT,answer TEXT,category TEXT,position INTEGER,status TEXT,published_at TEXT,updated_at TEXT)',
             'CREATE TABLE seo_metadata (id INTEGER PRIMARY KEY AUTOINCREMENT,page_id INTEGER,legal_document_id INTEGER,investment_opportunity_id INTEGER,article_id INTEGER,meta_title TEXT,meta_description TEXT,canonical_url TEXT,robots TEXT,open_graph_json TEXT,social_media_id INTEGER,created_at TEXT,updated_at TEXT)',
             'CREATE TABLE redirects (id INTEGER PRIMARY KEY AUTOINCREMENT,source_path TEXT UNIQUE,destination_path TEXT,status_code INTEGER,is_active INTEGER,created_by INTEGER,created_at TEXT,updated_at TEXT)',
-        ] as $sql) {
+            ] as $sql
+        ) {
             $this->pdo->exec($sql);
         }
     }

@@ -44,6 +44,60 @@ function VisualBand({ slot, title, body, eyebrow }: { slot: string; title: strin
   </section>;
 }
 
+function ClientJourney({ section }: { section: PageSection }) {
+  const content = section.content ?? {};
+  const title = string(content.heading ?? content.title) || 'A clear path from exploration to the right conversation';
+  const body = string(content.body);
+  const eyebrow = string(content.eyebrow) || 'Your client journey';
+  const stages = cards(content.items);
+  const checkpoints = cards(content.checkpoints);
+  const preparation = cards(content.preparation);
+  return <>
+    <section className="journey-hero" aria-labelledby="journey-title">
+      <div className="journey-hero__image"><img src={tradeImage} alt="" aria-hidden="true" loading="eager" decoding="async" /></div>
+      <div className="journey-hero__overlay" />
+      <div className="journey-hero__content">
+        <Breadcrumb title="How It Works" />
+        <p className="eyebrow">{eyebrow}</p>
+        <h1 id="journey-title">{title}</h1>
+        <div className="journey-hero__body"><RichText html={body} /></div>
+        <div className="mt-8 flex flex-wrap gap-4"><a className="button button-light" href="#journey">See the journey</a><Link className="button bg-white/10 text-white hover:bg-white/15" to="/contact?type=consultation">Request consultation</Link></div>
+      </div>
+    </section>
+    <nav className="journey-nav" aria-label="Journey stages"><div>{stages.map((stage, index) => <a href={`#stage-${index + 1}`} key={stage.title}><span>{String(index + 1).padStart(2, '0')}</span>{stage.title}</a>)}</div></nav>
+    <section id="journey" className="section-wrap journey-section" aria-labelledby="journey-stages-title">
+      <div className="journey-intro"><div><p className="eyebrow">What to expect</p><h2 id="journey-stages-title">An informed process, at your pace</h2></div><p>Each stage is designed to make the next conversation more useful. The appropriate path depends on the service, the information available, and any approved requirements that apply.</p></div>
+      <ol className="journey-stages">{stages.map((stage, index) => <li id={`stage-${index + 1}`} key={stage.title}><div className="journey-stage__number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</div><div className="journey-stage__content"><p className="journey-stage__label">Stage {index + 1}</p><h3>{stage.title}</h3><div><RichText html={stage.body} /></div>{stage.href && <Link to={stage.href} className="journey-stage__link">Explore related information <span aria-hidden="true">-&gt;</span></Link>}</div></li>)}</ol>
+    </section>
+    <section className="journey-checkpoints" aria-labelledby="journey-checkpoints-title"><div className="section-wrap"><div className="journey-checkpoints__header"><p className="eyebrow">Decision checkpoints</p><h2 id="journey-checkpoints-title">Questions worth resolving before a next step</h2></div><div className="journey-checkpoints__grid">{checkpoints.map((checkpoint) => <article key={checkpoint.title}><h3>{checkpoint.title}</h3><div><RichText html={checkpoint.body} /></div>{checkpoint.href && <Link to={checkpoint.href}>Learn more <span aria-hidden="true">-&gt;</span></Link>}</article>)}</div></div></section>
+    <section className="section-wrap journey-preparation" aria-labelledby="journey-preparation-title"><div><p className="eyebrow">Before you enquire</p><h2 id="journey-preparation-title">A little context helps us start well</h2><p>Share only the information needed to describe your question. Please do not send account credentials, private keys, payment instructions, or other unnecessary sensitive information through the public form.</p></div><ul>{preparation.map((item) => <li key={item.title}><h3>{item.title}</h3><div><RichText html={item.body} /></div></li>)}</ul></section>
+    <section className="section-wrap pt-0"><aside className="journey-boundary" aria-labelledby="journey-boundary-title"><div><p className="eyebrow">Important boundary</p><h2 id="journey-boundary-title">A website visit is the beginning of a conversation</h2></div><p>Submitting an enquiry does not open an account, create an investment, move funds or assets, provide custody, or execute a transaction. Where a process requires formal approval, documentation, suitability assessment, compliance controls, or other specialist review, it proceeds only through the applicable approved process.</p><Link to="/risk-disclosure">Read the Risk Disclosure <span aria-hidden="true">-&gt;</span></Link></aside></section>
+  </>;
+}
+
+function ServiceExperience({ section }: { section: PageSection }) {
+  const content = section.content ?? {};
+  const title = string(content.heading ?? content.title);
+  const body = string(content.body);
+  const eyebrow = string(content.eyebrow);
+  const variant = string(content.variant);
+  const themes = cards(content.items);
+  const principles = cards(content.principles);
+  const questions = cards(content.questions);
+  const image = variant === 'digital-assets' ? tradeImage : bannerImage;
+  const titleId = `${variant || 'service'}-experience-title`;
+  return <>
+    <section className={`service-hero service-hero--${variant}`} aria-labelledby={titleId}>
+      <div className="service-hero__media"><img src={image} alt="" aria-hidden="true" loading="eager" decoding="async" /></div><div className="service-hero__overlay" />
+      <div className="service-hero__content"><Breadcrumb title={title || 'Service'} /><p className="eyebrow">{eyebrow}</p><h1 id={titleId}>{title}</h1><div className="service-hero__body"><RichText html={body} /></div><div className="mt-8 flex flex-wrap gap-4"><a className="button button-light" href="#service-focus">Explore the approach</a><Link className="button bg-white/10 text-white hover:bg-white/15" to="/contact?type=consultation">Request consultation</Link></div></div>
+    </section>
+    <section id="service-focus" className="section-wrap service-focus" aria-labelledby={`${titleId}-focus`}><div className="service-focus__intro"><p className="eyebrow">The conversation</p><h2 id={`${titleId}-focus`}>Start with the factors that shape the decision</h2></div><div className="service-focus__grid">{themes.map((theme, index) => <article key={theme.title}><span aria-hidden="true">{String(index + 1).padStart(2, '0')}</span><h3>{theme.title}</h3><div><RichText html={theme.body} /></div>{theme.href && <Link to={theme.href}>Explore related information <span aria-hidden="true">-&gt;</span></Link>}</article>)}</div></section>
+    <section className="service-principles" aria-labelledby={`${titleId}-principles`}><div className="section-wrap"><div className="service-principles__intro"><p className="eyebrow">A disciplined perspective</p><h2 id={`${titleId}-principles`}>What informed review can involve</h2></div><div className="service-principles__grid">{principles.map((principle) => <article key={principle.title}><h3>{principle.title}</h3><div><RichText html={principle.body} /></div></article>)}</div></div></section>
+    <section className="section-wrap service-questions" aria-labelledby={`${titleId}-questions`}><div><p className="eyebrow">Prepare for a consultation</p><h2 id={`${titleId}-questions`}>Useful questions to bring to the conversation</h2><p>These prompts can help you organise a discussion. They do not replace suitability, legal, tax, or other professional advice where it is required.</p></div><ol>{questions.map((question, index) => <li key={question.title}><span aria-hidden="true">{String(index + 1).padStart(2, '0')}</span><div><h3>{question.title}</h3><RichText html={question.body} /></div></li>)}</ol></section>
+    <section className="section-wrap pt-0"><aside className="service-boundary" aria-label="Service scope"><div><p className="eyebrow">Service scope</p><h2>Explore first. Proceed through the appropriate process.</h2></div><p>These pages provide educational service information and a route to enquiry. They do not provide a personal recommendation, guarantee an outcome, open an account, receive funds, create custody arrangements, or execute transactions.</p><Link to="/risk-disclosure">Read the Risk Disclosure <span aria-hidden="true">-&gt;</span></Link></aside></section>
+  </>;
+}
+
 export function CmsSection({ section }: { section: PageSection }) {
   const content = section.content ?? {};
   const title = string(content.heading ?? content.title);
@@ -53,6 +107,8 @@ export function CmsSection({ section }: { section: PageSection }) {
   if (section.type === 'cta') return <div className="section-wrap"><CTASection title={title || 'Start a Consultation'} body={body} /></div>;
   if (section.type === 'markets') return <MarketsSection />;
   if (section.type === 'philosophy_stats') return <PhilosophyStatsSection />;
+  if (section.type === 'client_journey') return <ClientJourney section={section} />;
+  if (section.type === 'service_experience') return <ServiceExperience section={section} />;
   if (['positioning', 'philosophy', 'risk'].includes(slot)) return <VisualBand slot={slot} title={title} body={body} eyebrow={string(content.eyebrow)} />;
   return <section className="section-wrap">{title && <SectionHeader title={title} eyebrow={string(content.eyebrow)} />}<div className="text-slate-300"><RichText html={body} /></div>
     {['service_grid', 'feature_grid', 'statistics', 'testimonials', 'image_text'].includes(section.type) && <div className="mt-7 grid gap-6 md:grid-cols-3">{cards(content.items).map((item, i) => <ServiceCard key={i} {...item} />)}</div>}
@@ -66,34 +122,22 @@ type HomeSlot = [string, string, string];
 const homeSlots: HomeSlot[] = [
   ['hero', 'hero', 'PerrymanFinance'], ['philosophy_stats', 'philosophy_stats', 'Investment philosophy'],
   ['markets', 'markets', 'Markets'], ['positioning', 'rich_text', 'Who we serve'], ['services', 'service_grid', 'Services'], ['philosophy', 'rich_text', 'Investment philosophy'],
-  ['opportunities', 'investment_preview', 'Featured opportunities'], ['process', 'process_steps', 'How it works'], ['credibility', 'feature_grid', 'Why PerrymanFinance'], ['risk', 'rich_text', 'Risk management'], ['insights', 'insights_preview', 'Featured insights'], ['cta', 'cta', 'Start a Consultation'],
+  ['opportunities', 'investment_preview', 'Featured opportunities'], ['risk', 'rich_text', 'Risk management'], ['cta', 'cta', 'Start a Consultation'],
 ];
 
 function fallbackHomeSection([slot, type, heading]: HomeSlot): PageSection {
   const defaults: Record<string, Record<string, unknown>> = {
-    hero: { heading: 'Financial services for modern wealth and securities clients', eyebrow: 'PerrymanFinance', body: '<p>PerrymanFinance presents financial services, securities-related capabilities, investment products, wealth and portfolio management, digital asset strategy, account-service pathways, and market insight for clients who need a disciplined operating platform for financial decisions.</p>' },
-    positioning: { heading: 'A financial services partner for informed clients', eyebrow: 'Who we serve', body: '<p>PerrymanFinance helps private investors, families, founders, and professional allocators review investment themes with clearer context across wealth management, portfolio considerations, digital asset exposure, and market insight.</p><p>The platform connects public content with consultation, onboarding intake, product review, client-service expectations, reporting concepts, and account-management pathways while avoiding unapproved custody, execution, payment, or guaranteed-return claims.</p>' },
-    services: { heading: 'Services designed around advice, products, accounts, and discipline', eyebrow: 'Services', items: [
-      { title: 'Investment Solutions', body: 'Investment-product and opportunity workflows for clients comparing objectives, time horizon, liquidity needs, securities exposure, risk classification, suitability inputs, and portfolio role.', href: '/investment-solutions' },
-      { title: 'Digital Asset Management', body: 'Research-led digital asset management covering exposure design, market structure, custody-model review, operational controls, counterparty oversight, and governance requirements.', href: '/digital-assets' },
-      { title: 'Wealth Management', body: 'Wealth and portfolio management support for diversification, liquidity management, family and business-owner priorities, account reporting, and long-term financial decisions.', href: '/wealth-management' },
+    hero: { heading: 'Clearer investment decisions begin with disciplined advice', eyebrow: 'PerrymanFinance', body: '<p>PerrymanFinance brings investment solutions, wealth and portfolio management, securities-market perspective, digital asset research, and client-service support into one considered financial-services experience. Explore the services, review opportunity and risk information, and request a consultation when you are ready to discuss your priorities.</p>' },
+    positioning: { heading: 'A considered approach to modern wealth', eyebrow: 'Who we serve', body: '<p>PerrymanFinance supports private investors, families, founders, and professional allocators who need a clearer way to assess financial markets and investment themes. Our public platform explains how investment solutions, wealth planning, portfolio context, digital assets, and risk management can inform a more deliberate conversation.</p><p>Each route is designed to help clients understand the questions, information, and review process that may be relevant before engaging with a service or opportunity.</p>' },
+    services: { heading: 'Financial services built around your objectives', eyebrow: 'Our services', items: [
+      { title: 'Investment Solutions', body: 'Explore investment themes and published opportunities through objectives, time horizon, liquidity needs, risk classification, and their potential role within a broader portfolio.', href: '/investment-solutions' },
+      { title: 'Digital Asset Management', body: 'Assess digital asset exposure with attention to market structure, volatility, operational resilience, governance, counterparties, and the place of emerging assets in a wider allocation.', href: '/digital-assets' },
+      { title: 'Wealth Management', body: 'Frame long-term wealth priorities around diversification, liquidity, family or business interests, portfolio review, client reporting needs, and informed decision-making.', href: '/wealth-management' },
     ] },
-    philosophy: { heading: 'Built around judgement, governance, and restraint', eyebrow: 'Investment philosophy', body: '<p>The PerrymanFinance approach begins with objectives, constraints, suitability, liquidity, documentation, and risk. Opportunity entries are presented as controlled product records for review, suitability discussion, risk disclosure, and client-service follow-up, not as guarantees or pressure-based calls to act.</p>' },
-    opportunities: { heading: 'Featured investment opportunities', eyebrow: 'Catalogue', body: '<p>Review published opportunity themes with stated objectives, horizons, risk classifications, and disclaimers.</p>' },
-    process: { heading: 'How the service conversation works', eyebrow: 'Process', items: [
-      { title: 'Explore services', body: 'Review investment, wealth-management, digital asset, market-insight, account-service, and reporting information.' },
-      { title: 'Review risks', body: 'Consider whether a topic fits your objectives, liquidity needs, and tolerance for loss.' },
-      { title: 'Request consultation', body: 'Submit an enquiry, consultation request, or onboarding-intake request so the team can route the next step through approved procedures.' },
-      { title: 'Proceed through review', body: 'Account opening, suitability review, documentation, reporting setup, and any transaction-related process require approved controlled procedures beyond public content.' },
-    ] },
-    credibility: { heading: 'Why clients consider PerrymanFinance', eyebrow: 'Why PerrymanFinance', items: [
-      { title: 'Integrated market perspective', body: 'Traditional financial markets and digital asset themes are discussed together for clearer allocation context.', href: '/insights' },
-      { title: 'Risk-first communication', body: 'Service and opportunity content avoids guaranteed returns, fabricated performance, and artificial urgency.', href: '/risk-disclosure' },
-      { title: 'Controlled client pathway', body: 'Public calls to action route users toward consultation, onboarding intake, product review, and client-service follow-up while preserving clear boundaries around custody, execution, payment, and accounting capabilities.', href: '/faq' },
-    ] },
-    risk: { heading: 'Risk management is part of every discussion', eyebrow: 'Risk management', body: '<p>Investments can lose value, and digital assets may experience significant volatility, liquidity constraints, technology failures, cyber incidents, regulatory change, tax complexity, and third-party risk.</p>' },
-    insights: { heading: 'Financial insights for better decisions', eyebrow: 'Insights', body: '<p>Read educational commentary on global markets, digital assets, liquidity, portfolio construction, governance, and risk.</p>' },
-    cta: { heading: 'Start a Consultation from PerrymanFinance', body: '<p>Start with a focused enquiry about investment services, securities products, wealth-management priorities, digital asset strategy, client account needs, reporting expectations, or a published opportunity.</p>' },
+    philosophy: { heading: 'Investment decisions deserve more than a market view', eyebrow: 'Our approach', body: '<p>Our approach starts with the client context: objectives, existing exposures, liquidity needs, time horizon, governance, and tolerance for loss. We then consider the market, operational, and documentation questions that can affect an investment decision.</p><p>Published opportunities are intended to support informed review. They describe a theme, its risk classification, and the information needed for a meaningful discussion; they are not a promise of outcome or a substitute for suitability assessment.</p>' },
+    opportunities: { heading: 'Explore investment opportunities with context', eyebrow: 'Investment catalogue', body: '<p>Review published opportunities with their stated objective, time horizon, risk classification, and disclosure information before deciding whether to request a discussion.</p>' },
+    risk: { heading: 'Risk management belongs at the start of the conversation', eyebrow: 'Risk management', body: '<p>Every investment involves risk, including the possible loss of capital. Securities and digital assets can be affected by market volatility, liquidity constraints, economic conditions, counterparty exposure, technology failures, cyber incidents, tax considerations, and regulatory change.</p><p>Risk classification and disclosure are starting points, not a complete assessment. Review the relevant information and seek appropriate professional advice before making a financial decision.</p>' },
+    cta: { heading: 'Talk to PerrymanFinance about your priorities', body: '<p>Request a consultation about investment solutions, wealth-management priorities, a digital asset strategy, client-service needs, or a published opportunity. We will use your enquiry to direct you to the appropriate next conversation.</p>' },
   };
   return { type, content: { slot, heading, ...(defaults[slot] ?? {}) } };
 }
@@ -102,17 +146,24 @@ export function MarketingPage({ slug, title }: { slug: string; title: string }) 
   const page = query.data?.data;
   const sections = page?.sections ?? [];
   const home = slug === 'home';
+  const hasJourney = sections.some((section) => section.type === 'client_journey');
+  const hasServiceExperience = sections.some((section) => section.type === 'service_experience');
   return <PublicLayout><Metadata title={page?.title ?? title} seo={page?.seo} unavailable={!page} /><main id="content" tabIndex={-1}>
     {query.isPending ? <div className="section-wrap"><LoadingSkeleton /></div> : query.isError ? <div className="section-wrap"><h1 className="text-4xl font-semibold">{title}</h1>{query.error instanceof Error && 'status' in query.error && query.error.status === 404 ? <EmptyState>This page has not been published yet.</EmptyState> : <ErrorState retry={() => void query.refetch()} />}</div> : home ? homeSlots.map(([slot, type, heading], i) => {
       const section = sections.find((item) => item.content?.slot === slot) ?? (type === 'hero' ? sections.find((item) => item.type === 'hero') : sections[i]);
       return <CmsSection key={slot} section={section?.type === type ? section : fallbackHomeSection([slot, type, heading])} />;
-    }) : <><div className="section-wrap pb-0"><Breadcrumb title={page?.title ?? title} />{!sections.some((section) => section.type === 'hero') && <><h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">{page?.title ?? title}</h1><p className="mt-5 max-w-3xl text-lg text-slate-600">{page?.excerpt}</p></>}</div>{sections.length ? sections.map((section, i) => <CmsSection section={section} key={i} />) : <div className="section-wrap"><EmptyState /></div>}</>}
+    }) : <>{!hasJourney && !hasServiceExperience && <div className="section-wrap pb-0"><Breadcrumb title={page?.title ?? title} />{!sections.some((section) => section.type === 'hero') && <><h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">{page?.title ?? title}</h1><p className="mt-5 max-w-3xl text-lg text-slate-600">{page?.excerpt}</p></>}</div>}{sections.length ? sections.map((section, i) => <CmsSection section={section} key={i} />) : <div className="section-wrap"><EmptyState /></div>}</>}
   </main></PublicLayout>;
 }
 export function LegalPage({ slug, title }: { slug: string; title: string }) {
   const query = useQuery({ queryKey: ['legal', slug], queryFn: ({ signal }) => publicService.legal(slug, signal) });
   const document = query.data?.data;
-  return <PublicLayout><Metadata title={document?.title ?? title} seo={document?.seo} unavailable={!document} /><main id="content" tabIndex={-1} className="section-wrap max-w-4xl"><Breadcrumb title={title} /><h1 className="text-4xl font-semibold">{document?.title ?? title}</h1>{query.isPending ? <LoadingSkeleton /> : query.isError ? <ErrorState retry={() => void query.refetch()} /> : document ? <><p className="my-6 text-sm text-slate-600">Version {document.version}{document.effective_at ? ` · Effective ${document.effective_at.slice(0, 10)}` : ''}</p><RichText html={document.content} /></> : <EmptyState />}</main></PublicLayout>;
+  const legalLinks = [['terms', 'Terms'], ['privacy-policy', 'Privacy'], ['risk-disclosure', 'Risk disclosure'], ['cookie-policy', 'Cookies']] as const;
+  return <PublicLayout><Metadata title={document?.title ?? title} seo={document?.seo} unavailable={!document} /><main id="content" tabIndex={-1}>
+    <section className="legal-hero"><div className="legal-shell"><Breadcrumb title={document?.title ?? title} /><p className="eyebrow">Legal and trust</p><h1>{document?.title ?? title}</h1><p>This document is maintained through the PerrymanFinance CMS so its published version, effective date, and supporting metadata can be reviewed in one place.</p>{document && <div className="legal-hero__meta"><span>Version {document.version}</span>{document.effective_at && <span>Effective {document.effective_at.slice(0, 10)}</span>}<span>Published document</span></div>}</div></section>
+    <nav className="legal-nav" aria-label="Legal documents"><div className="legal-shell">{legalLinks.map(([path, label]) => <Link key={path} to={`/${path}`} aria-current={path === slug ? 'page' : undefined}>{label}</Link>)}</div></nav>
+    <section className="legal-shell legal-layout">{query.isPending ? <LoadingSkeleton /> : query.isError ? <ErrorState retry={() => void query.refetch()} /> : document ? <><article className="legal-document"><div className="legal-document__notice"><strong>Important</strong><p>Read this document with the related legal and risk information. It does not replace the formal documents or professional advice that may be required for a particular decision or service.</p></div><RichText html={document.content} /></article><aside className="legal-aside" aria-label="Related legal information"><p className="eyebrow">Related information</p><h2>Make decisions with the full context.</h2><p>Investment and digital asset topics can involve material risk. Public content supports research and enquiry; it does not create an account, custody arrangement, payment, or transaction.</p><Link to="/risk-disclosure">Read the Risk Disclosure <span aria-hidden="true">-&gt;</span></Link><Link to="/contact?type=consultation">Request consultation <span aria-hidden="true">-&gt;</span></Link></aside></> : <EmptyState />}</section>
+  </main></PublicLayout>;
 }
 export function NotFoundPage() {
   const location = useLocation();

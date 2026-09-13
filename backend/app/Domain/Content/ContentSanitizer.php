@@ -9,7 +9,7 @@ use PerrymanFinance\Http\Exceptions\ValidationException;
 final class ContentSanitizer
 {
     private const SECTION_TYPES = [
-        'hero', 'rich_text', 'service_grid', 'feature_grid', 'process_steps', 'cta',
+        'hero', 'rich_text', 'service_grid', 'feature_grid', 'process_steps', 'client_journey', 'service_experience', 'cta',
         'image_text', 'statistics', 'testimonials', 'faq_preview', 'investment_preview', 'insights_preview',
     ];
 

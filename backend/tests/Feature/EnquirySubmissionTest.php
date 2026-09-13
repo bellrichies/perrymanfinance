@@ -56,6 +56,18 @@ final class EnquirySubmissionTest extends TestCase
         self::assertSame('Please explain the risks.', $row['message']);
     }
 
+    public function testStagingAcceptanceEnquirySubmissionPersistsGenericLeadData(): void
+    {
+        $this->service->submit([...$this->input(), 'source_page' => '/contact?type=consultation'], '203.0.113.10');
+
+        $statement = $this->pdo->query('SELECT enquiry_type, source_page, status FROM enquiries');
+        self::assertInstanceOf(\PDOStatement::class, $statement);
+        $row = $statement->fetch();
+        self::assertSame('general', $row['enquiry_type']);
+        self::assertSame('/contact?type=consultation', $row['source_page']);
+        self::assertSame('new', $row['status']);
+    }
+
     public function testConsentCannotBeBypassed(): void
     {
         $this->expectException(ValidationException::class);

@@ -1,0 +1,136 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Deployment target
+        required: true
+        default: staging
+        type: choice
+        options:
+          - staging
+          - production
+  push:
+    branches: [main]
+    tags: ['v*.*.*']
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-${{ github.event.inputs.target || (startsWith(github.ref, 'refs/tags/') && 'production' || 'staging') }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build versioned release artifact
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: version
+        shell: bash
+        run: |
+          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            echo "version=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          elif [[ "${{ github.event_name }}" == "release" ]]; then
+            echo "version=${{ github.event.release.tag_name }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=${GITHUB_SHA::12}" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo_mysql, mbstring, fileinfo, gd, openssl
+          coverage: none
+          tools: composer:v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: ./scripts/package-release.sh ${{ steps.version.outputs.version }}
+        env:
+          PRERENDER_API_URL: ${{ vars.PRERENDER_API_URL }}
+          VITE_SITE_URL: ${{ vars.VITE_SITE_URL }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: perrymanfinance-${{ steps.version.outputs.version }}
+          path: build/perrymanfinance-${{ steps.version.outputs.version }}.zip
+          retention-days: 30
+
+  deploy-staging:
+    name: Deploy staging
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'staging' || github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: ${{ vars.STAGING_BASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: perrymanfinance-${{ needs.build.outputs.version }}
+          path: build
+      - name: Upload artifact to staging host
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.STAGING_SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.STAGING_SSH_HOST }}
+          SSH_USER: ${{ secrets.STAGING_SSH_USER }}
+          SSH_PORT: ${{ secrets.STAGING_SSH_PORT }}
+          RELEASE_ROOT: ${{ secrets.STAGING_RELEASE_ROOT }}
+        run: ./scripts/remote-deploy.sh build/perrymanfinance-${{ needs.build.outputs.version }}.zip ${{ needs.build.outputs.version }}
+      - name: Run staging migrations
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.STAGING_SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.STAGING_SSH_HOST }}
+          SSH_USER: ${{ secrets.STAGING_SSH_USER }}
+          SSH_PORT: ${{ secrets.STAGING_SSH_PORT }}
+          RELEASE_ROOT: ${{ secrets.STAGING_RELEASE_ROOT }}
+        run: ./scripts/remote-migrate.sh ${{ needs.build.outputs.version }}
+      - name: Health check
+        run: ./scripts/health-check.sh "${{ vars.STAGING_BASE_URL }}"
+      - name: Smoke test
+        run: ./scripts/smoke-test.sh "${{ vars.STAGING_BASE_URL }}"
+
+  deploy-production:
+    name: Deploy production
+    if: github.event_name == 'release' || startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'production'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ vars.PRODUCTION_BASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: perrymanfinance-${{ needs.build.outputs.version }}
+          path: build
+      - name: Record backup checkpoint
+        run: echo "Confirm provider backup/snapshot exists before approving production deployment."
+      - name: Upload artifact to production host
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.PRODUCTION_SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.PRODUCTION_SSH_HOST }}
+          SSH_USER: ${{ secrets.PRODUCTION_SSH_USER }}
+          SSH_PORT: ${{ secrets.PRODUCTION_SSH_PORT }}
+          RELEASE_ROOT: ${{ secrets.PRODUCTION_RELEASE_ROOT }}
+        run: ./scripts/remote-deploy.sh build/perrymanfinance-${{ needs.build.outputs.version }}.zip ${{ needs.build.outputs.version }}
+      - name: Run production migrations
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.PRODUCTION_SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.PRODUCTION_SSH_HOST }}
+          SSH_USER: ${{ secrets.PRODUCTION_SSH_USER }}
+          SSH_PORT: ${{ secrets.PRODUCTION_SSH_PORT }}
+          RELEASE_ROOT: ${{ secrets.PRODUCTION_RELEASE_ROOT }}
+        run: ./scripts/remote-migrate.sh ${{ needs.build.outputs.version }}
+      - name: Health check
+        run: ./scripts/health-check.sh "${{ vars.PRODUCTION_BASE_URL }}"
+      - name: Smoke test
+        run: ./scripts/smoke-test.sh "${{ vars.PRODUCTION_BASE_URL }}"

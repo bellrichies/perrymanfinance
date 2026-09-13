@@ -85,6 +85,36 @@ final class CmsFunctionalityTest extends TestCase
         self::assertStringNotContainsString('<script', (string) $legal['content']);
     }
 
+    public function testPageAndLegalPublishingCriticalPathsExposeOnlyPublishedContent(): void
+    {
+        $page = $this->cms->savePage(null, $this->pageInput('draft'), 1, 'stage-page-create');
+        $this->cms->savePage((string) $page['uuid'], $this->pageInput('review'), 1, 'stage-page-review');
+        $publishedPage = $this->cms->savePage((string) $page['uuid'], $this->pageInput('published'), 1, 'stage-page-publish');
+
+        self::assertSame('published', $publishedPage['status']);
+        self::assertNotNull($publishedPage['published_at']);
+        self::assertSame('About', $this->cms->page('about', true)['title']);
+
+        $legal = $this->cms->saveLegal(null, [
+            'document_type' => 'risk_disclosure',
+            'title' => 'Risk Disclosure',
+            'slug' => 'risk-disclosure',
+            'version' => '1.0',
+            'content' => '<p>Reviewed risk disclosure.</p><script>bad()</script>',
+            'status' => 'draft',
+        ], 1, 'stage-legal-create');
+        $this->cms->saveLegal((string) $legal['uuid'], [...$legal, 'status' => 'review'], 1, 'stage-legal-review');
+        $publishedLegal = $this->cms->saveLegal((string) $legal['uuid'], [...$legal, 'status' => 'published'], 1, 'stage-legal-publish');
+
+        self::assertSame('published', $publishedLegal['status']);
+        self::assertNotNull($publishedLegal['published_at']);
+        self::assertStringNotContainsString('<script', (string) $this->cms->legal('risk-disclosure', true)['content']);
+
+        $statement = $this->pdo->query("SELECT event FROM audit_logs WHERE request_id IN ('stage-page-publish','stage-legal-publish') ORDER BY id");
+        self::assertInstanceOf(\PDOStatement::class, $statement);
+        self::assertSame(['page.updated', 'legal.updated'], $statement->fetchAll(\PDO::FETCH_COLUMN));
+    }
+
     public function testSeoMetadataPersistsForPageOwner(): void
     {
         $page = $this->cms->savePage(null, $this->pageInput('draft'), 1, null);
@@ -127,6 +157,34 @@ final class CmsFunctionalityTest extends TestCase
         $service->upload(['error' => UPLOAD_ERR_NO_FILE], null, 1, null);
     }
 
+    public function testTextFileDisguisedAsMediaIsRejected(): void
+    {
+        $tmp = tempnam(sys_get_temp_dir(), 'media-reject-');
+        self::assertIsString($tmp);
+        file_put_contents($tmp, '<svg><script>alert(1)</script></svg>');
+        $service = new MediaService(
+            new MediaRepository($this->connection),
+            new AuditLogRepository($this->connection),
+            new Config(['media' => ['path' => sys_get_temp_dir(), 'max_bytes' => 1000, 'max_dimension' => 100]]),
+        );
+
+        try {
+            $service->upload([
+                'error' => UPLOAD_ERR_OK,
+                'tmp_name' => $tmp,
+                'size' => filesize($tmp),
+                'name' => 'disguised.png',
+            ], 'Disguised upload', 1, 'stage-media-reject');
+            self::fail('Invalid media payload was accepted.');
+        } catch (\PerrymanFinance\Http\Exceptions\ValidationException $exception) {
+            self::assertArrayHasKey('file', $exception->fields);
+        } finally {
+            if (is_file($tmp)) {
+                unlink($tmp);
+            }
+        }
+    }
+
     public function testCmsMutationWithoutAuthenticatedPrincipalIsDenied(): void
     {
         $application = ApplicationFactory::create(static function ($router): void {
@@ -136,7 +194,9 @@ final class CmsFunctionalityTest extends TestCase
         });
         $response = $application->handle(new Request('POST', '/api/v1/admin/pages'));
         self::assertSame(401, $response->status());
-        self::assertSame('UNAUTHENTICATED', $response->body()['error']['code']);
+        $body = $response->body();
+        self::assertIsArray($body);
+        self::assertSame('UNAUTHENTICATED', $body['error']['code']);
     }
 
     /** @return array<string, mixed> */

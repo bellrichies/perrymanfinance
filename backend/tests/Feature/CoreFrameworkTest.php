@@ -21,7 +21,9 @@ final class CoreFrameworkTest extends TestCase
                 throw new RuntimeException('private diagnostic');
             },
         ), new \PerrymanFinance\Config\Config(['app' => ['env' => 'production', 'debug' => true]]));
-        self::assertSame('An unexpected error occurred.', $app->handle(new Request('GET', '/fail'))->body()['error']['message']);
+        $body = $app->handle(new Request('GET', '/fail'))->body();
+        self::assertIsArray($body);
+        self::assertSame('An unexpected error occurred.', $body['error']['message']);
     }
 
     public function testNotFoundAndMethodNotAllowedAreMappedToSafeApiErrors(): void
@@ -45,6 +47,8 @@ final class CoreFrameworkTest extends TestCase
         ));
         $response = $app->handle(new Request('GET', '/fail'));
         self::assertSame(500, $response->status());
-        self::assertSame('An unexpected error occurred.', $response->body()['error']['message']);
+        $body = $response->body();
+        self::assertIsArray($body);
+        self::assertSame('An unexpected error occurred.', $body['error']['message']);
     }
 }

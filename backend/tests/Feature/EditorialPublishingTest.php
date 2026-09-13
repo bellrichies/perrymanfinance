@@ -63,6 +63,22 @@ final class EditorialPublishingTest extends TestCase
         self::assertNotNull($published['published_at']);
     }
 
+    public function testArticlePublishingCriticalPathKeepsDraftsPrivateAndAudited(): void
+    {
+        $draft = $this->service->saveArticle(null, $this->articleInput('draft', 'staging-article', 'Staging Article'), 1, 'stage-article-create');
+        $this->service->saveArticle((string) $draft['uuid'], $this->articleInput('review', 'staging-article', 'Staging Article'), 1, 'stage-article-review');
+        $published = $this->service->saveArticle((string) $draft['uuid'], $this->articleInput('published', 'staging-article', 'Staging Article'), 1, 'stage-article-publish');
+
+        self::assertSame('published', $published['status']);
+        self::assertNotNull($published['published_at']);
+        self::assertSame('Staging Article', $this->service->article('staging-article', true)['title']);
+        self::assertStringNotContainsString('<script', (string) $published['content']);
+
+        $statement = $this->pdo->query("SELECT event FROM audit_logs WHERE request_id='stage-article-publish'");
+        self::assertInstanceOf(\PDOStatement::class, $statement);
+        self::assertSame('article.updated', $statement->fetchColumn());
+    }
+
     public function testPaginationFiltersAndArticleTagRelationships(): void
     {
         foreach ([['Alpha', 'alpha', 1, [1]], ['Beta', 'beta', 2, [2]], ['Gamma', 'gamma', 1, [1, 2]]] as [$title, $slug, $category, $tags]) {

@@ -62,6 +62,22 @@ final class InvestmentCatalogueTest extends TestCase
         self::assertNotNull($published['published_at']);
     }
 
+    public function testPublishingCriticalPathRequiresReviewRiskAndDisclaimer(): void
+    {
+        $draft = $this->service->saveOpportunity(null, $this->input('draft', 'staging-strategy'), 1, 'stage-investment-create');
+
+        $this->expectException(ValidationException::class);
+        try {
+            $this->service->saveOpportunity((string) $draft['uuid'], $this->input('published', 'staging-strategy'), 1, 'stage-investment-invalid');
+        } finally {
+            $review = $this->service->saveOpportunity((string) $draft['uuid'], $this->input('review', 'staging-strategy'), 1, 'stage-investment-review');
+            $published = $this->service->saveOpportunity((string) $review['uuid'], $this->input('published', 'staging-strategy'), 1, 'stage-investment-publish');
+            self::assertSame('published', $published['status']);
+            self::assertSame('Core Strategy', $this->service->opportunity('staging-strategy', true)['title']);
+            self::assertStringNotContainsString('<script', (string) $published['full_description']);
+        }
+    }
+
     public function testFilteringAndPagination(): void
     {
         foreach ([['Alpha', 'alpha', 'moderate'], ['Beta', 'beta', 'high'], ['Gamma', 'gamma', 'moderate']] as [$title, $slug, $risk]) {
@@ -107,7 +123,9 @@ final class InvestmentCatalogueTest extends TestCase
         $response = $application->handle(new Request('POST', '/api/v1/admin/investments'));
 
         self::assertSame(401, $response->status());
-        self::assertSame('UNAUTHENTICATED', $response->body()['error']['code']);
+        $body = $response->body();
+        self::assertIsArray($body);
+        self::assertSame('UNAUTHENTICATED', $body['error']['code']);
     }
 
     /** @return array<string,mixed> */
