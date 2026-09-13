@@ -30,6 +30,8 @@ The MVP should represent PerrymanFinance as an operational financial platform. I
 6. [DevOps, Testing & Deployment](./06-devops-testing-deployment.md)
 7. [Delivery Phases & Roadmap](./07-delivery-phases-roadmap.md)
 8. [Copilot-Ready Implementation Prompts](./08-copilot-ready-prompts.md)
+9. [Post-Launch Engineering Review](./17-post-launch-engineering-review.md)
+10. [Client Account Architecture Discovery](./18-client-account-architecture-discovery.md)
 
 ---
 
