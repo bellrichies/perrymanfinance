@@ -20,4 +20,16 @@ final class AuditLogRepository extends AbstractRepository
             ],
         );
     }
+
+    /** @return list<array<string, mixed>> */
+    public function latest(int $limit = 100): array
+    {
+        $limit = max(1, min(200, $limit));
+        return array_values($this->execute(
+            "SELECT a.id,a.event,a.subject_type,a.subject_id,a.request_id,a.ip_address,a.created_at,"
+            . "u.email AS actor_email,u.display_name AS actor_name "
+            . "FROM audit_logs a LEFT JOIN admin_users u ON u.id=a.actor_id "
+            . "ORDER BY a.created_at DESC,a.id DESC LIMIT {$limit}",
+        )->fetchAll());
+    }
 }

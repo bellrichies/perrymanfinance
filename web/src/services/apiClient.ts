@@ -1,8 +1,10 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api/v1';
 type ErrorEnvelope = { error?: { message?: string; fields?: Record<string, string[]> } };
 type AuthHooks = { getAccessToken: () => string | null; refresh: () => Promise<string | null>; expired: () => void };
-let authHooks: AuthHooks | null = null;
-let refreshPromise: Promise<string | null> | null = null;
+let adminAuthHooks: AuthHooks | null = null;
+let clientAuthHooks: AuthHooks | null = null;
+let adminRefreshPromise: Promise<string | null> | null = null;
+let clientRefreshPromise: Promise<string | null> | null = null;
 
 export class ApiError extends Error {
   public constructor(public readonly status: number, message: string, public readonly fields: Record<string, string[]> = {}) {
@@ -10,17 +12,27 @@ export class ApiError extends Error {
   }
 }
 
-export function configureApiAuth(hooks: AuthHooks | null) { authHooks = hooks; }
+export function configureApiAuth(hooks: AuthHooks | null, scope: 'admin' | 'client' = 'admin') {
+  if (scope === 'client') clientAuthHooks = hooks;
+  else adminAuthHooks = hooks;
+}
 
 export async function requestJson<T>(path: string, init: RequestInit = {}, retryAuth = true): Promise<T> {
   const headers = new Headers(init.headers);
   headers.set('Accept', 'application/json');
   if (init.body && !(init.body instanceof FormData)) headers.set('Content-Type', 'application/json');
+  const authHooks = path.startsWith('/client/') ? clientAuthHooks : adminAuthHooks;
   const token = authHooks?.getAccessToken();
   if (token) headers.set('Authorization', `Bearer ${token}`);
   const response = await fetch(`${API_BASE_URL}${path}`, { ...init, headers, credentials: 'include' });
   if (response.status === 401 && retryAuth && authHooks) {
-    refreshPromise ??= authHooks.refresh().finally(() => { refreshPromise = null; });
+    let refreshPromise = path.startsWith('/client/') ? clientRefreshPromise : adminRefreshPromise;
+    refreshPromise ??= authHooks.refresh().finally(() => {
+      if (path.startsWith('/client/')) clientRefreshPromise = null;
+      else adminRefreshPromise = null;
+    });
+    if (path.startsWith('/client/')) clientRefreshPromise = refreshPromise;
+    else adminRefreshPromise = refreshPromise;
     const refreshed = await refreshPromise;
     if (refreshed) return requestJson<T>(path, init, false);
     authHooks.expired();

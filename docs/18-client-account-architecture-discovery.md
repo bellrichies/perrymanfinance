@@ -2,7 +2,10 @@
 
 ## Purpose
 
-This document records architecture discovery for a possible authenticated PerrymanFinance client account module. It is a proposal and migration strategy only. It does not approve implementation of client-money, custody, brokerage, exchange, wallet, payment, investment subscription, transaction ledger, or automated-return functionality.
+This document records architecture discovery for an authenticated PerrymanFinance client account module. It supports the
+limited client-account expansion described in `docs/19-client-account-implementation-structure.md`. It does not approve
+implementation of client-money, custody, brokerage, exchange, wallet, payment, investment subscription, transaction
+ledger, or automated-return functionality.
 
 The existing MVP CMS is sufficient for public content, enquiries, investment catalogue entries, SEO, media, legal pages, and admin publishing workflows. It is not sufficient for financial transaction processing, KYC transaction onboarding, portfolio accounting for real client money, custody, or asset/money movement.
 
@@ -37,7 +40,9 @@ Future Regulated Transaction Platform
   - reconciliation
 ```
 
-The recommended first approved slice is read-only client reporting and document access. Investment subscriptions, transactions, deposits, withdrawals, wallets, custody, or settlement should remain out of scope until a separate regulated transaction architecture is approved.
+The recommended first approved slice is client identity, plan-request review, manual admin approval, and approved
+client reporting snapshots. Investment subscriptions, transactions, deposits, withdrawals, wallets, custody, or
+settlement should remain out of scope until a separate regulated transaction architecture is approved.
 
 ## Discovery Areas
 
@@ -305,12 +310,16 @@ Admin CMS users should not automatically gain access to client data. Client oper
 Approved first slice:
 
 - separate client login;
-- mandatory MFA;
-- client profile read-only view;
-- restricted document access;
-- read-only reporting snapshots;
-- downloadable approved statements if source/approval process exists;
-- in-app notifications for document/report availability;
+- client account creation with email verification;
+- optional MFA foundation, with mandatory MFA recommended before sensitive documents or detailed reporting;
+- client profile view and simple profile completion;
+- authenticated investment-plan list sourced from published investment opportunities;
+- client plan request submission with risk acknowledgement and non-guarantee disclosure;
+- admin approval/rejection of client plan requests with required reason;
+- client investment account activation after admin approval;
+- manual admin balance adjustments with source reference, reason, effective date, and immutable audit;
+- approved reporting snapshots that allow clients to see how their investment has changed over time;
+- in-app notifications for approval, rejection, document, and reporting availability;
 - full audit trail.
 
 Explicitly excluded from first slice:
@@ -325,3 +334,6 @@ Explicitly excluded from first slice:
 - transaction ledger;
 - automated performance/ROI calculations;
 - KYC-driven transaction onboarding unless legally approved.
+
+See `docs/19-client-account-implementation-structure.md` for the implementation structure for this approved
+client-account expansion.

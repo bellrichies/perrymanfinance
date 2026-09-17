@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 use PerrymanFinance\Http\Controllers\HealthController;
 use PerrymanFinance\Http\Controllers\AdminAuthController;
+use PerrymanFinance\Http\Controllers\AdminClientController;
 use PerrymanFinance\Http\Controllers\AdminContentController;
+use PerrymanFinance\Http\Controllers\AdminOperationsController;
+use PerrymanFinance\Http\Controllers\ClientAuthController;
+use PerrymanFinance\Http\Controllers\ClientPortalController;
 use PerrymanFinance\Http\Controllers\PublicContentController;
 use PerrymanFinance\Http\Controllers\InvestmentController;
 use PerrymanFinance\Http\Controllers\InsightController;
@@ -12,6 +16,7 @@ use PerrymanFinance\Http\Controllers\EnquiryController;
 use PerrymanFinance\Http\Controllers\AdminEnquiryController;
 use PerrymanFinance\Http\Controllers\SeoController;
 use PerrymanFinance\Http\Middleware\AuthMiddleware;
+use PerrymanFinance\Http\Middleware\ClientAuthMiddleware;
 use PerrymanFinance\Http\Middleware\PermissionMiddleware;
 use PerrymanFinance\Http\Router;
 
@@ -45,7 +50,34 @@ return static function (Router $router): void {
             $router->post('/reset-password', [AdminAuthController::class, 'resetPassword']);
             $router->get('/me', [AdminAuthController::class, 'me'], [AuthMiddleware::class]);
         });
+        $router->group('/client/auth', [], static function (Router $router): void {
+            $router->post('/register', [ClientAuthController::class, 'register']);
+            $router->post('/verify-email', [ClientAuthController::class, 'verifyEmail']);
+            $router->post('/login', [ClientAuthController::class, 'login']);
+            $router->post('/refresh', [ClientAuthController::class, 'refresh']);
+            $router->post('/logout', [ClientAuthController::class, 'logout']);
+            $router->post('/forgot-password', [ClientAuthController::class, 'forgotPassword']);
+            $router->post('/reset-password', [ClientAuthController::class, 'resetPassword']);
+            $router->get('/me', [ClientAuthController::class, 'me'], [ClientAuthMiddleware::class]);
+        });
+        $router->group('/client', [ClientAuthMiddleware::class], static function (Router $router): void {
+            $router->get('/dashboard', [ClientPortalController::class, 'dashboard']);
+            $router->get('/plans', [ClientPortalController::class, 'plans']);
+            $router->post('/plan-requests', [ClientPortalController::class, 'submitPlanRequest']);
+            $router->get('/plan-requests', [ClientPortalController::class, 'planRequests']);
+            $router->get('/investments/{uuid}/snapshots', [ClientPortalController::class, 'snapshots']);
+        });
         $router->group('/admin', [AuthMiddleware::class], static function (Router $router): void {
+            $router->get('/clients', [AdminClientController::class, 'clients'], [new PermissionMiddleware('clients.view')]);
+            $router->get('/clients/{uuid}', [AdminClientController::class, 'client'], [new PermissionMiddleware('clients.view')]);
+            $router->get('/client-plan-requests', [AdminClientController::class, 'planRequests'], [new PermissionMiddleware('client_plans.review')]);
+            $router->post('/client-plan-requests/{uuid}/approve', [AdminClientController::class, 'approve'], [new PermissionMiddleware('client_plans.review')]);
+            $router->post('/client-plan-requests/{uuid}/reject', [AdminClientController::class, 'reject'], [new PermissionMiddleware('client_plans.review')]);
+            $router->get('/client-investments/{uuid}', [AdminClientController::class, 'investment'], [new PermissionMiddleware('clients.view')]);
+            $router->post('/client-investments/{uuid}/balance-adjustments', [AdminClientController::class, 'balanceAdjustment'], [new PermissionMiddleware('client_balances.adjust')]);
+            $router->post('/client-investments/{uuid}/reporting-snapshots', [AdminClientController::class, 'reportingSnapshot'], [new PermissionMiddleware('client_reports.publish')]);
+            $router->get('/users', [AdminOperationsController::class, 'users'], [new PermissionMiddleware('users.manage')]);
+            $router->get('/audit-logs', [AdminOperationsController::class, 'auditLogs'], [new PermissionMiddleware('audit.view')]);
             $router->get('/enquiries', [AdminEnquiryController::class, 'index'], [new PermissionMiddleware('enquiries.view')]);
             $router->get('/enquiries/{uuid}', [AdminEnquiryController::class, 'show'], [new PermissionMiddleware('enquiries.view')]);
             $router->patch('/enquiries/{uuid}', [AdminEnquiryController::class, 'update'], [new PermissionMiddleware('enquiries.update')]);

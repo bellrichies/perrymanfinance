@@ -60,9 +60,9 @@ MVP goals:
 Authenticated account goals:
 
 - view portfolio;
-- review performance;
+- review approved investment growth/reporting snapshots;
 - access investment documents;
-- review transactions;
+- request or choose an available investment plan for staff review;
 - download reports.
 
 ### 3.3 Content Administrator
@@ -190,6 +190,27 @@ Administrative routes require authenticated and authorized access.
 
 Sensitive administrative changes should create audit records.
 
+### PR-011 - Client Account Portal
+
+Clients must be able to create a client account, log in securely, complete a simple profile, review eligible investment
+plans, submit one plan request for administrator review, and view only approved account balances, plan allocations, and
+growth/reporting snapshots.
+
+The public website navigation must expose client account access through `Client Login` and `Create Account` paths. It
+must not expose `Admin Login`, `/admin/login`, CMS routes, staff routes, or admin-only labels to public visitors or
+clients.
+
+This requirement is a controlled client-account expansion, not a wallet, exchange, deposit, withdrawal, brokerage,
+custody, or automated-return system. All financial values shown to clients must come from an approved source,
+administrator-entered adjustment, or approved reporting import. The interface must clearly state that displayed growth is
+not a guarantee of future returns.
+
+### PR-012 - Admin Client Investment Operations
+
+Authorized client-operations administrators must be able to review client investment-plan requests, approve or reject
+them with an internal note, and manually record balance adjustments or reporting snapshots when supported by external
+records. Each action must require reason capture, permission checks, and immutable audit logging.
+
 ---
 
 ## 6. Key User Journeys
@@ -236,6 +257,44 @@ Admin Login
   -> Public Insight Detail
 ```
 
+### Journey E - Client Creates Account and Chooses Plan
+
+```text
+Client Register
+  -> Email Verification
+  -> Login
+  -> Complete Simple Profile
+  -> Review Investment Plans
+  -> Select Plan
+  -> Acknowledge Risk Notice
+  -> Submit for Admin Review
+  -> Track Pending / Approved / Rejected Status
+```
+
+### Journey F - Client Views Investment Growth
+
+```text
+Client Login
+  -> Dashboard
+  -> Current Approved Balance
+  -> Active Plan
+  -> Growth Snapshot Chart
+  -> Reporting Disclaimer
+  -> Documents / Support
+```
+
+### Journey G - Admin Approves and Updates Client Reporting
+
+```text
+Admin Login
+  -> Client Accounts
+  -> Review Plan Request
+  -> Approve / Reject with Reason
+  -> Add Balance Adjustment or Reporting Snapshot
+  -> Audit Log
+  -> Client Dashboard Updates
+```
+
 ---
 
 ## 7. Information Architecture
@@ -278,6 +337,23 @@ Admin:
 ├── /settings
 ├── /users
 └── /audit-logs
+```
+
+Admin routes are direct staff routes. They must not be linked from the public header, public footer, marketing pages, or
+client account navigation.
+
+Client:
+
+```text
+/client
+├── /register
+├── /login
+├── /dashboard
+├── /plans
+├── /investments
+├── /documents
+├── /profile
+└── /support
 ```
 
 ---
@@ -428,6 +504,22 @@ Authenticated financial functionality should live in a separate bounded module w
 - SeoMetadata
 - Redirect
 - Sitemap
+
+### Client Account
+
+- ClientUser
+- ClientProfile
+- ClientSession
+- ClientPlanRequest
+- ClientInvestmentAccount
+- ClientBalanceAdjustment
+- ClientReportingSnapshot
+- ClientDocument
+- ClientNotification
+- ClientAuditEvent
+
+Client account entities must remain separate from CMS entities and admin identity. Admin users may operate on client
+records only through explicit client-operations permissions.
 
 ---
 

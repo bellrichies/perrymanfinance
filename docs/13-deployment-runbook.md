@@ -8,14 +8,14 @@ This runbook describes staging and production deployment to shared Linux hosting
 
 Use GitHub protected environments named `staging` and `production`. Store secrets only in GitHub environment secrets or the hosting provider secret manager.
 
-Required environment variables:
+Required repository variables:
 
-- `STAGING_BASE_URL`
-- `PRODUCTION_BASE_URL`
-- `PRERENDER_API_URL`
-- `VITE_SITE_URL`
+- `STAGING_BASE_URL` (approved staging HTTPS origin; set before the first staging deploy)
+- `PRODUCTION_BASE_URL` (approved production HTTPS origin)
+- `PRERENDER_API_URL` (trusted API origin ending in `/api/v1`)
+- `VITE_SITE_URL` (absolute production HTTPS origin used during release prerender)
 
-Required secrets per environment:
+Required secrets per GitHub environment (`staging` / `production`):
 
 - `STAGING_SSH_HOST` / `PRODUCTION_SSH_HOST`
 - `STAGING_SSH_USER` / `PRODUCTION_SSH_USER`
@@ -23,7 +23,7 @@ Required secrets per environment:
 - `STAGING_SSH_PRIVATE_KEY` / `PRODUCTION_SSH_PRIVATE_KEY`
 - `STAGING_RELEASE_ROOT` / `PRODUCTION_RELEASE_ROOT`
 
-Do not put database credentials, SMTP credentials, JWT secrets, or production `.env` values in workflow files.
+The GitHub Actions language service reports `Context access might be invalid` until those repository variables and environment secrets exist. Do not put database credentials, SMTP credentials, JWT secrets, or production `.env` values in workflow files.
 
 ## CI Gates
 
@@ -76,6 +76,17 @@ Preferred layout:
 Set the website document root to the active release `public` directory where the hosting panel permits it. Keep backend source, configuration, migrations, tests, logs, and uploads outside the public document root.
 
 If the provider cannot point the document root to a release directory, upload to the provider-supported private application directory and copy only `public` assets into the public document root as a documented manual step.
+
+The public document root must include the release `public/api/index.php` bridge. Requests to `/api/v1/*` are rewritten by `public/.htaccess` into that bridge, which then boots the private backend from one of the supported shared-hosting layouts:
+
+- `<release>/private/backend/public/index.php`;
+- `<account-root>/private/backend/public/index.php`;
+- `<public-document-root>/backend/public/index.php` for constrained manual cPanel deployments;
+- `<public-document-root>/backend/index.php` when only the backend public front controller is copied into `public_html/backend`.
+
+Keep the real backend source outside the public document root whenever the host permits it. If a manual cPanel deployment must place a backend directory under `public_html`, expose only the backend `public` front controller and deny direct source access through provider rules.
+
+Production environment values may be provided by the host environment or a private `.env` file in `private/backend`, the release root, or the parent release directory. Required production values include `APP_ENV=production`, `APP_URL=https://perrymanfinance.com`, `FRONTEND_URL=https://perrymanfinance.com`, `CORS_ALLOWED_ORIGINS=https://perrymanfinance.com`, a 32+ character `JWT_SECRET`, and valid database credentials. Run migrations after those values are present.
 
 ## Staging Deployment
 

@@ -44,6 +44,19 @@ final class AdminUserRepository extends AbstractRepository
         );
     }
 
+    /** @return list<array<string, mixed>> */
+    public function list(): array
+    {
+        return array_values($this->execute(
+            'SELECT u.uuid,u.email,u.display_name,u.status,u.last_login_at,u.created_at,'
+            . 'GROUP_CONCAT(DISTINCT r.name ORDER BY r.name SEPARATOR \',\') AS roles '
+            . 'FROM admin_users u LEFT JOIN user_roles ur ON ur.admin_user_id=u.id '
+            . 'LEFT JOIN roles r ON r.id=ur.role_id WHERE u.deleted_at IS NULL '
+            . 'GROUP BY u.id,u.uuid,u.email,u.display_name,u.status,u.last_login_at,u.created_at '
+            . 'ORDER BY u.created_at DESC LIMIT 100',
+        )->fetchAll());
+    }
+
     /** @param array<string, mixed> $row */
     private function hydrate(array $row): AdminUser
     {

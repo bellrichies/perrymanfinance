@@ -10,8 +10,8 @@ final class Environment
 {
     public static function load(string $basePath): Config
     {
-        if (is_file($basePath . '/.env')) {
-            Dotenv::createImmutable($basePath)->safeLoad();
+        foreach (self::envDirectories($basePath) as $directory) {
+            Dotenv::createImmutable($directory)->safeLoad();
         }
         $env = static fn (string $key, string $default = ''): string =>
             is_string($_ENV[$key] ?? null) ? $_ENV[$key] : (getenv($key) ?: $default);
@@ -58,5 +58,23 @@ final class Environment
                 'max_dimension' => (int) $env('MEDIA_MAX_DIMENSION', '6000'),
             ],
         ]);
+    }
+
+    /** @return list<string> */
+    private static function envDirectories(string $basePath): array
+    {
+        $directories = [];
+        $explicitPath = getenv('PERRYMAN_ENV_PATH');
+        if (is_string($explicitPath) && $explicitPath !== '' && is_file($explicitPath)) {
+            $directories[] = dirname($explicitPath);
+        }
+
+        foreach ([$basePath, dirname($basePath), dirname($basePath, 2)] as $directory) {
+            if (is_file($directory . '/.env')) {
+                $directories[] = $directory;
+            }
+        }
+
+        return array_values(array_unique($directories));
     }
 }

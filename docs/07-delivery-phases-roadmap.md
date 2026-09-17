@@ -239,6 +239,7 @@ Production is stable and recoverable.
 
 # Future Phase — Client Portal
 
+This placeholder is superseded by Phase 13, Phase 14, and the Future Regulated Transaction Platform section below.
 Only begin after separate requirements/compliance review.
 
 Potential scope:
@@ -249,6 +250,68 @@ Potential scope:
 - investment subscriptions;
 - transactions;
 - notifications.
+
+If real funds or assets are involved, perform a new threat model and regulatory review before implementation.
+
+---
+
+# Phase 13 - Approved Client Account Foundation
+
+Only begin after separate requirements/compliance review.
+
+## Build
+- client authentication;
+- email verification and password reset;
+- optional MFA foundation;
+- client profile;
+- published plan list for authenticated clients;
+- plan request submission with risk acknowledgement;
+- admin client list and detail;
+- admin plan-request approval/rejection with required reason;
+- client dashboard with pending/approved/rejected request status.
+
+## Exit Criteria
+- client identity is separate from admin identity;
+- client ownership checks and admin client-operation permissions are enforced;
+- all sensitive actions are audited;
+- no wallet, deposit, withdrawal, custody, trading, or payment functionality is introduced;
+- public and client-facing copy includes approved risk and non-guarantee language.
+
+---
+
+# Phase 14 - Client Investment Reporting and Manual Balance Operations
+
+Only begin after Phase 13 and confirmation of the reporting source of truth.
+
+## Build
+- client investment accounts created through admin approval;
+- manual balance adjustments with reason, source reference, effective date, and audit;
+- reporting snapshots with principal, reported value, growth amount, growth percent, methodology note, and approval;
+- client dashboard growth chart/table based only on approved snapshots;
+- admin reporting and adjustment screens;
+- stale-data notices and support flow.
+
+## Exit Criteria
+- adjustments and snapshots are append-only or correction-based;
+- state-changing operations are idempotent;
+- clients see only their own records;
+- administrators can access client financial/reporting data only with explicit permissions;
+- all balance/growth displays are clearly marked as reporting figures, not withdrawable balances or guaranteed returns;
+- tests cover client login, plan request, approval, adjustment, snapshot publication, IDOR prevention, and audit.
+
+---
+
+# Future Phase - Regulated Transaction Platform
+
+Potential scope:
+- KYC;
+- statements;
+- investment subscriptions;
+- transactions;
+- deposits and withdrawals;
+- payment settlement;
+- custody or custodian integrations;
+- brokerage or trade execution.
 
 If real funds or assets are involved, perform a new threat model and regulatory review before implementation.
 

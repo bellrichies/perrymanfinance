@@ -15,9 +15,10 @@ function renderPage(update = true) {
 
 it('loads details, escapes messages and saves status through the API', async () => {
   let status = 'new';
-  const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
+  const fetchMock = vi.fn(async (url: RequestInfo | URL, init?: RequestInit) => {
     if (init?.method === 'PATCH') status = JSON.parse(String(init.body)).status;
-    return new Response(JSON.stringify({ data: url.includes('/enquiries?') ? [{ ...enquiry, status }] : { ...enquiry, status }, meta: { page: 1, total: 1, total_pages: 1 } }));
+    const path = String(url);
+    return new Response(JSON.stringify({ data: path.includes('/enquiries?') ? [{ ...enquiry, status }] : { ...enquiry, status }, meta: { page: 1, total: 1, total_pages: 1 } }));
   });
   vi.stubGlobal('fetch', fetchMock);
   renderPage();
@@ -30,7 +31,10 @@ it('loads details, escapes messages and saves status through the API', async () 
 });
 
 it('allows viewers to read without status controls and handles empty filters', async () => {
-  vi.stubGlobal('fetch', vi.fn(async (url: string) => new Response(JSON.stringify({ data: url.includes('search=absent') ? [] : url.includes('/enquiries?') ? [enquiry] : enquiry, meta: { page: 1, total: 1, total_pages: 1 } }))));
+  vi.stubGlobal('fetch', vi.fn(async (url: RequestInfo | URL) => {
+    const path = String(url);
+    return new Response(JSON.stringify({ data: path.includes('search=absent') ? [] : path.includes('/enquiries?') ? [enquiry] : enquiry, meta: { page: 1, total: 1, total_pages: 1 } }));
+  }));
   renderPage(false);
   fireEvent.click(await screen.findByRole('button', { name: 'Consultation' }));
   await screen.findByText('<script>untrusted</script>');

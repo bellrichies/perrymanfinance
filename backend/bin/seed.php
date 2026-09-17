@@ -5,6 +5,7 @@ declare(strict_types=1);
 use PerrymanFinance\Config\Config;
 use PerrymanFinance\Database\ConnectionInterface;
 use PerrymanFinance\Database\Seeders\DevAdminSeeder;
+use PerrymanFinance\Database\Seeders\DemoClientInvestmentSeeder;
 use PerrymanFinance\Database\Seeders\PublicContentSeeder;
 use PerrymanFinance\Database\Seeders\ReferenceDataSeeder;
 use PerrymanFinance\Database\Seeders\SeedRunner;
@@ -13,7 +14,7 @@ use PerrymanFinance\Database\Seeders\SeedRunner;
 $bootstrap = require dirname(__DIR__) . '/bootstrap/database.php';
 $runner = new SeedRunner(
     $bootstrap['connections'],
-    [new ReferenceDataSeeder(), new DevAdminSeeder(), new PublicContentSeeder()],
+    [new ReferenceDataSeeder(), new DevAdminSeeder(), new PublicContentSeeder(), new DemoClientInvestmentSeeder()],
     $bootstrap['config']->string('app.env', 'production'),
 );
 try {

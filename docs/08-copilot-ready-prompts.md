@@ -35,7 +35,7 @@ Architecture rules:
 5. Enforce authorization server-side.
 6. Use prepared statements.
 7. Do not introduce framework dependencies that conflict with the custom MVC architecture unless explicitly approved.
-8. Do not implement wallet custody, deposits, withdrawals, trading, blockchain private-key handling, automated ROI, or client-money accounting. Those are outside MVP scope.
+8. Do not implement wallet custody, deposits, withdrawals, trading, blockchain private-key handling, automated ROI, or client-money accounting. Those are outside MVP scope. Client-account plan requests, manual admin approvals, manual balance adjustments, and approved reporting snapshots may be implemented only under the approved client-account phases and docs.
 9. Do not invent financial claims, guaranteed returns, licensing, or regulatory status.
 10. Update tests and documentation with each meaningful change.
 
@@ -867,4 +867,225 @@ Explicitly identify:
 
 Output a separate architecture proposal and migration strategy.
 Do not assume the MVP CMS is sufficient for financial transaction processing.
+```
+
+---
+
+## Client Account Foundation Implementation Prompt
+
+```text
+Implement the approved PerrymanFinance client account foundation from roadmap Phase 13.
+
+Read:
+- docs/00-README.md;
+- docs/01-product-and-architecture.md;
+- docs/02-build-blueprint.md;
+- docs/03-backend-architecture-and-workflow.md;
+- docs/04-frontend-architecture-and-workflow.md;
+- docs/05-data-api-security-compliance.md;
+- docs/07-delivery-phases-roadmap.md;
+- docs/18-client-account-architecture-discovery.md;
+- docs/19-client-account-implementation-structure.md.
+
+Build:
+- separate client identity module;
+- client registration, email verification, login, refresh, logout, forgot/reset password;
+- client profile;
+- client dashboard shell;
+- authenticated plan list from published eligible investment opportunities;
+- client plan request submission with risk acknowledgement;
+- admin clients list/detail;
+- admin pending plan-request queue;
+- admin approve/reject flow with required reason;
+- client dashboard request status.
+
+Rules:
+- do not reuse admin identity tables for clients;
+- enforce client ownership checks on every client endpoint;
+- enforce explicit admin permissions for client operations;
+- use standardized JSON responses;
+- use migrations, repositories, services, controllers, and tests;
+- add audit events for registration, login, plan requests, admin review, and client record access;
+- do not implement deposits, withdrawals, wallets, custody, trading, payment movement, or automated return calculations.
+
+Verification:
+- backend unit/integration/API tests;
+- frontend component/integration tests;
+- E2E for client registration, plan request, admin approval, and client status display;
+- IDOR and permission-denial tests.
+```
+
+---
+
+## Client Investment Reporting Implementation Prompt
+
+```text
+Implement the approved PerrymanFinance client investment reporting and manual balance operations from roadmap Phase 14.
+
+Prerequisites:
+- Phase 13 is complete;
+- reporting source-of-truth and disclaimer language are approved;
+- docs/19-client-account-implementation-structure.md is current.
+
+Build:
+- client investment account activation after admin approval;
+- manual balance adjustment endpoint and admin form;
+- reporting snapshot endpoint and admin form;
+- client dashboard reported balance and growth chart/table;
+- client investment detail with snapshot history;
+- stale-data notice;
+- audit timeline for client investment operations.
+
+Rules:
+- manual balance changes require type, amount, currency, source reference, effective date, reason, and idempotency key;
+- snapshots require principal amount, reported value, growth amount, growth percent, currency, methodology note, source reference, approving actor, and idempotency key;
+- corrections are made through new adjustment/snapshot records;
+- client-facing text must say reported balance/value, not wallet balance or withdrawable cash;
+- do not implement automatic ROI, guaranteed return, deposits, withdrawals, payments, custody, trading, or client-money accounting.
+
+Verification:
+- tests for adjustment validation, snapshot validation, idempotency, audit, permissions, client ownership, dashboard states, and growth rendering;
+- security review for logs, caching, IDOR, and authorization.
+```
+
+---
+
+## Complete Phased Client Account Implementation Prompt
+
+```text
+Implement PerrymanFinance client account creation, login, client dashboard, investment-plan selection, admin approval,
+manual balance adjustment, and approved investment-growth reporting in phases.
+
+Before coding:
+- read docs/00-README.md;
+- read docs/01-product-and-architecture.md;
+- read docs/02-build-blueprint.md;
+- read docs/03-backend-architecture-and-workflow.md;
+- read docs/04-frontend-architecture-and-workflow.md;
+- read docs/05-data-api-security-compliance.md;
+- read docs/06-devops-testing-deployment.md;
+- read docs/07-delivery-phases-roadmap.md;
+- read docs/18-client-account-architecture-discovery.md;
+- read docs/19-client-account-implementation-structure.md;
+- inspect existing backend routes, controllers, services, repositories, migrations, tests, frontend routes, layouts,
+  API client, auth handling, and header/navigation components.
+
+Global requirements:
+- use PHP 8.2+, strict types, PSR-4/PSR-12, services, repositories, policies, middleware, and migrations;
+- use React, TypeScript, Vite, Tailwind, route guards, feature modules, API service methods, and query hooks;
+- keep client identity separate from admin identity;
+- keep client auth state separate from admin auth state;
+- replace any public navigation `Login` button with `Client Login` linking to `/client/login`;
+- add a clear `Create Account` path linking to `/client/register` where useful;
+- never expose `Admin Login`, `/admin/login`, CMS routes, or staff links in the public header, public footer, mobile
+  drawer, marketing pages, sitemap, or client navigation;
+- keep `/admin/login` as a direct staff URL protected by backend auth, throttling, audit, and monitoring;
+- enforce backend authorization and client ownership checks on every client endpoint;
+- use fixed precision decimals and explicit currency codes for money-like values;
+- label client balances as reported/approved balances, not wallet balances or withdrawable cash;
+- do not implement wallets, deposits, withdrawals, payments, custody, trading, brokerage execution, client-money
+  accounting, guaranteed returns, or automatic ROI.
+
+Phase A - Public navigation and route shell:
+- update PublicLayout/Header/MobileNavigation so public `Login` becomes `Client Login`;
+- when a client session exists, show `Dashboard` instead of `Client Login`;
+- add `/client/register`, `/client/login`, and protected `/client` route shell;
+- ensure admin links are absent from public navigation and client navigation;
+- create ClientLayout with mobile-first navigation for Dashboard, Plans, Investments, Documents, Profile, and Support;
+- add frontend tests for public navigation, mobile navigation, and route guard behavior.
+
+Phase B - Client identity backend:
+- create migrations for client_users, client_profiles, client_sessions, client_email_verification_tokens,
+  client_password_reset_tokens, and client_audit_events;
+- create repositories, services, request validators, resources, and controllers for registration, verification, login,
+  refresh, logout, forgot password, reset password, and current client;
+- hash passwords with PHP password APIs;
+- store verification/reset/refresh tokens hashed only;
+- throttle registration, login, verification, and reset flows;
+- return generic reset responses to prevent user enumeration;
+- append audit events for registration, verification, login success/failure, logout, reset request, and reset completion;
+- add unit, integration, feature, and security tests.
+
+Phase C - Client identity frontend:
+- build `/client/register` with name, email, password, password confirmation, consent, inline validation, loading state,
+  duplicate-submit prevention, and success/verify-email state;
+- build `/client/login` with email, password, forgot-password, create-account link, safe error messages, and loading
+  state;
+- build forgot/reset password screens if routes exist in the app;
+- create client auth provider/hooks separate from admin auth;
+- wire API client token/refresh handling for client endpoints;
+- protect `/client/*` routes and redirect unauthenticated clients to `/client/login`;
+- add component/integration tests for registration, login, reset, session expiry, and protected route behavior.
+
+Phase D - Client plans and plan requests:
+- create migrations for client_plan_requests;
+- expose authenticated `GET /api/v1/client/plans` using published eligible investment opportunities only;
+- expose `POST /api/v1/client/plan-requests` requiring selected plan, requested amount if enabled, risk acknowledgement,
+  and idempotency key;
+- prevent duplicate active/pending requests where the business rule requires a single active request;
+- create admin endpoints to list pending requests and approve/reject with required reason;
+- append audit events for request creation, approval, rejection, and cancellation;
+- build `/client/plans`, plan detail/request UI, dashboard pending-status card, and admin request queue;
+- add tests for validation, idempotency, duplicate handling, permissions, client ownership, and UI states.
+
+Phase E - Client dashboard foundation:
+- expose `GET /api/v1/client/dashboard`;
+- aggregate profile completion, plan request status, active investment accounts, latest reporting snapshot, notifications,
+  and documents summary where implemented;
+- return display-safe data only and disable public caching;
+- build dashboard states: loading, empty/new account, pending review, approved with no snapshots, approved with snapshots,
+  and error;
+- use a simple, calm dashboard layout: summary band, status card, next action, recent activity, documents/support
+  shortcuts, and risk note;
+- add backend feature tests and frontend integration tests for all dashboard states.
+
+Phase F - Admin approval creates client investment account:
+- create migrations for client_investment_accounts;
+- on admin approval, create or activate the client investment account inside a database transaction;
+- store approved amount, currency, approving actor, approved_at, status, and audit event;
+- notify client in-app or through the existing notification abstraction when available;
+- build admin client detail and investment detail views;
+- add tests for transactional approval, permission denial, repeated approval idempotency, and audit.
+
+Phase G - Manual balance adjustments:
+- create migrations for client_balance_adjustments;
+- expose admin endpoint `POST /api/v1/admin/client-investments/{uuid}/balance-adjustments`;
+- require adjustment type, amount, currency, effective date, source reference, reason, and idempotency key;
+- update reported current balance according to approved adjustment rules inside a transaction;
+- never delete or silently overwrite historical adjustments;
+- show adjustment history in admin client investment detail;
+- add tests for validation, decimal precision, negative/positive adjustment rules, idempotency, permissions, audit, and
+  client data isolation.
+
+Phase H - Reporting snapshots and growth display:
+- create migrations for client_reporting_snapshots;
+- expose admin endpoint `POST /api/v1/admin/client-investments/{uuid}/reporting-snapshots`;
+- require snapshot date, principal amount, reported value, growth amount, growth percent, currency, methodology note,
+  source reference, approving actor, and idempotency key;
+- expose client endpoint `GET /api/v1/client/investments/{uuid}/snapshots` scoped to the authenticated client;
+- build client investment detail and dashboard growth chart/table from approved snapshots only;
+- include snapshot date, stale-data notice, methodology summary when client-safe, and non-guarantee disclosure;
+- add tests for snapshot validation, snapshot ordering, stale notice, IDOR prevention, audit, and chart/table rendering.
+
+Phase I - Hardening and release readiness:
+- add or update documentation for routes, environment variables, migrations, operational runbooks, and rollback;
+- run PHP syntax/style/static analysis if configured;
+- run backend tests;
+- run frontend lint, type-check, tests, and production build;
+- run E2E tests for client register/login, plan request, admin approval, balance adjustment, snapshot publication, and
+  client growth display;
+- review security headers, CORS, private cache headers, logs, token storage, IDOR, permission checks, and audit records;
+- verify responsive behavior and accessibility for public header, client auth forms, dashboard, plan request, and admin
+  operation screens.
+
+Completion criteria:
+- public navigation shows client login/account access and never exposes admin login;
+- clients can create an account, verify email, log in, view dashboard, choose a plan, and track approval status;
+- admin can review and approve/reject plan requests with required reasons;
+- admin can manually adjust reported balance with source reference and audit;
+- clients can see approved investment growth based on reporting snapshots;
+- all sensitive actions are audited;
+- authorization, ownership, validation, idempotency, loading/error/empty states, accessibility, and tests are complete;
+- no prohibited wallet, deposit, withdrawal, trading, custody, payment, client-money, or guaranteed-return behavior is
+  introduced.
 ```

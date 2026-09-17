@@ -46,7 +46,8 @@ perrymanfinance/
 │   │   │   ├── Investment/
 │   │   │   ├── Insights/
 │   │   │   ├── Enquiries/
-│   │   │   └── Seo/
+│   │   │   ├── Seo/
+│   │   │   └── ClientAccount/
 │   │   ├── Services/
 │   │   ├── Repositories/
 │   │   ├── Integrations/
@@ -170,6 +171,27 @@ Optional operational:
 - failed_jobs
 - rate_limit_counters if application-managed
 
+### Client Account Expansion Tables
+
+Add only after formal scope/compliance approval:
+
+- client_users
+- client_profiles
+- client_sessions
+- client_email_verification_tokens
+- client_password_reset_tokens
+- client_plan_requests
+- client_investment_accounts
+- client_balance_adjustments
+- client_reporting_snapshots
+- client_documents
+- client_notifications
+- client_audit_events
+
+Keep these tables separate from CMS/admin tables. Financial values must be decimal columns with explicit currency,
+source, effective date, approval actor, and audit trail. Do not derive balances from deposits, withdrawals, wallets, or
+trades unless those regulated modules are separately approved.
+
 ---
 
 ## 5. Content Model
@@ -239,6 +261,86 @@ timestamps
 ```
 
 Do not calculate or promise future returns in this table for MVP.
+
+### ClientPlanRequest
+
+```text
+id
+uuid
+client_user_id
+investment_opportunity_id
+requested_amount
+currency
+status: pending|approved|rejected|cancelled
+risk_acknowledged_at
+reviewed_by
+reviewed_at
+client_note
+admin_note
+created_at
+updated_at
+```
+
+### ClientInvestmentAccount
+
+```text
+id
+uuid
+client_user_id
+investment_opportunity_id
+status: pending|active|paused|closed
+approved_amount
+current_balance
+currency
+approved_by
+approved_at
+last_snapshot_at
+created_at
+updated_at
+```
+
+`current_balance` is a manually approved reporting figure, not a spendable wallet balance. It must never be presented as
+withdrawable cash unless payment/custody functionality is separately approved.
+
+### ClientBalanceAdjustment
+
+```text
+id
+uuid
+client_investment_account_id
+adjustment_type: initial_allocation|increase|decrease|correction|valuation_update
+amount
+currency
+reason
+source_reference
+effective_at
+created_by
+created_at
+```
+
+Every adjustment must be permission-checked, reasoned, auditable, and preferably maker/checker approved for production.
+
+### ClientReportingSnapshot
+
+```text
+id
+uuid
+client_investment_account_id
+snapshot_date
+principal_amount
+reported_value
+growth_amount
+growth_percent
+currency
+methodology_note
+source_reference
+approved_by
+approved_at
+created_at
+```
+
+Growth values must be imported or admin-approved reporting values. Do not implement guaranteed, automatic, or hard-coded
+ROI formulas.
 
 ### Article
 
@@ -318,6 +420,39 @@ GET/PATCH              /admin/settings
 GET/POST/PATCH/DELETE  /admin/users
 GET                     /admin/audit-logs
 ```
+
+### Client Account
+
+```text
+POST /client/auth/register
+POST /client/auth/verify-email
+POST /client/auth/login
+POST /client/auth/refresh
+POST /client/auth/logout
+POST /client/auth/forgot-password
+POST /client/auth/reset-password
+GET  /client/auth/me
+
+GET   /client/dashboard
+GET   /client/plans
+POST  /client/plan-requests
+GET   /client/plan-requests
+GET   /client/investments
+GET   /client/investments/{uuid}/snapshots
+GET   /client/documents
+GET   /client/notifications
+
+GET   /admin/clients
+GET   /admin/clients/{uuid}
+GET   /admin/client-plan-requests
+POST  /admin/client-plan-requests/{uuid}/approve
+POST  /admin/client-plan-requests/{uuid}/reject
+POST  /admin/client-investments/{uuid}/balance-adjustments
+POST  /admin/client-investments/{uuid}/reporting-snapshots
+```
+
+Client endpoints must enforce client ownership. Admin client operations require explicit permissions such as
+`clients.view`, `client_plans.review`, `client_balances.adjust`, and `client_reports.publish`.
 
 #### Implemented CMS contract
 
@@ -403,6 +538,14 @@ App
     └── Notifications
 ```
 
+Public layout rule:
+
+- `Header` and mobile navigation must link public account access to `/client/login` with the label `Client Login`;
+- when a client session is active, show `Dashboard` linking to `/client`;
+- provide `Create Account` links on client-auth and account-entry screens;
+- never expose `/admin/login`, `Admin Login`, CMS links, or staff-only routes through public layout, client layout,
+  footer navigation, sitemap, or marketing pages.
+
 ### Public Pages
 
 - HomePage
@@ -433,6 +576,28 @@ App
 - Settings
 - Users
 - AuditLogs
+
+### Client Pages
+
+- ClientRegisterPage
+- ClientLoginPage
+- ClientDashboardPage
+- ClientPlansPage
+- ClientPlanRequestPage
+- ClientInvestmentsPage
+- ClientDocumentsPage
+- ClientProfilePage
+- ClientSupportPage
+
+### Admin Client Operations Pages
+
+- ClientsIndex
+- ClientDetail
+- PlanRequestsIndex
+- PlanRequestReview
+- ClientInvestmentDetail
+- BalanceAdjustmentCreate
+- ReportingSnapshotCreate
 
 ---
 

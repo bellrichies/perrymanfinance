@@ -1,6 +1,6 @@
 # PerrymanFinance — Frontend Architecture & Workflow
 
-# 1. Frontend Objectives
+## 1. Frontend Objectives
 
 The PerrymanFinance frontend must be:
 
@@ -15,9 +15,10 @@ The PerrymanFinance frontend must be:
 
 ---
 
-# 2. Visual Direction
+## 2. Visual Direction
 
 Avoid:
+
 - crypto-casino aesthetics;
 - excessive neon;
 - fake dashboards;
@@ -26,6 +27,7 @@ Avoid:
 - animated coin clutter.
 
 Prefer:
+
 - deep navy;
 - restrained blue/emerald accents;
 - generous whitespace;
@@ -36,7 +38,7 @@ Prefer:
 
 ---
 
-# 3. Frontend Structure
+## 3. Frontend Structure
 
 ```text
 src/
@@ -54,7 +56,8 @@ src/
 │   ├── investments/
 │   ├── insights/
 │   ├── enquiries/
-│   └── settings/
+│   ├── settings/
+│   └── clientAccount/
 ├── layouts/
 │   ├── PublicLayout.tsx
 │   └── AdminLayout.tsx
@@ -69,7 +72,7 @@ src/
 
 ---
 
-# 4. Route Architecture
+## 4. Route Architecture
 
 Public:
 
@@ -108,15 +111,47 @@ Admin:
 /admin/audit-logs
 ```
 
+Client:
+
+```text
+/client/register
+/client/login
+/client
+/client/plans
+/client/investments
+/client/documents
+/client/profile
+/client/support
+```
+
+Admin client operations:
+
+```text
+/admin/clients
+/admin/clients/:uuid
+/admin/client-plan-requests
+/admin/client-investments/:uuid
+```
+
 Use route guards for admin routes.
+
+Public navigation rule:
+
+- the public header and mobile drawer must show client access only;
+- replace any generic `Login` button in public navigation with `Client Login` linking to `/client/login`;
+- show `Dashboard` instead of `Client Login` when a client session is active;
+- do not show `Admin Login`, `/admin/login`, CMS links, staff links, or admin-only labels anywhere in public navigation,
+  public footer links, marketing pages, sitemap, or discoverable frontend menus;
+- `/admin/login` remains a direct staff URL and must be protected by backend authentication, throttling, and monitoring.
 
 ---
 
-# 5. Server State
+## 5. Server State
 
 Use a query/cache layer such as TanStack Query.
 
 Rules:
+
 - service layer owns API calls;
 - query hooks wrap service calls;
 - components consume query hooks;
@@ -131,13 +166,21 @@ Example conceptual keys:
 ['insights', filters]
 ['insight', slug]
 ['admin', 'enquiries', filters]
+['client', 'dashboard']
+['client', 'plans']
+['client', 'planRequests']
+['client', 'investments']
+['client', 'investmentSnapshots', uuid]
+['admin', 'clients', filters]
+['admin', 'clientPlanRequests', filters]
 ```
 
 ---
 
-# 6. Local/UI State
+## 6. Local/UI State
 
 Use component state for:
+
 - modal visibility;
 - form controls where suitable;
 - disclosure/accordion state;
@@ -149,7 +192,7 @@ Do not put server data into a global store unnecessarily.
 
 ---
 
-# 7. API Client
+## 7. API Client
 
 Create one API client wrapper that handles:
 
@@ -166,7 +209,7 @@ No random `fetch()` calls spread across components.
 
 ---
 
-# 8. Forms
+## 8. Forms
 
 All forms need:
 
@@ -193,7 +236,7 @@ Submit
 
 ---
 
-# 9. Homepage Sections
+## 9. Homepage Sections
 
 Recommended sequence:
 
@@ -210,15 +253,17 @@ Recommended sequence:
 
 ---
 
-# 10. Investment Catalogue UX
+## 10. Investment Catalogue UX
 
 Filters can include:
+
 - category;
 - risk classification;
 - strategy;
 - status.
 
 Cards should emphasize:
+
 - strategy;
 - objective;
 - horizon;
@@ -229,13 +274,23 @@ Cards should emphasize:
 Do not use aggressive "Invest Now" UX in MVP.
 
 Prefer:
+
 - View Details
 - Learn More
 - Request Consultation
 
+For authenticated clients, use calm account CTAs:
+
+- Select Plan
+- Submit for Review
+- View Investment
+- View Report
+
+Do not label these actions as purchase, deposit, instant investment, withdrawal, cash-out, trade, or guaranteed return.
+
 ---
 
-# 11. Investment Detail UX
+## 11. Investment Detail UX
 
 Suggested structure:
 
@@ -259,9 +314,10 @@ Risk Notice
 
 ---
 
-# 12. Insights UX
+## 12. Insights UX
 
 Index:
+
 - featured article;
 - latest articles;
 - category filters;
@@ -269,6 +325,7 @@ Index:
 - search optional.
 
 Detail:
+
 - title;
 - category;
 - date;
@@ -281,11 +338,12 @@ Detail:
 
 ---
 
-# 13. Admin UX
+## 13. Admin UX
 
 Admin screens should prioritize productivity.
 
 Every index:
+
 - title;
 - primary action;
 - search;
@@ -296,6 +354,7 @@ Every index:
 - actions.
 
 Every editor:
+
 - main content;
 - publish state;
 - preview;
@@ -304,37 +363,102 @@ Every editor:
 - validation summary.
 
 Dangerous actions:
+
 - confirmation dialog;
 - clear consequence text;
 - permission check;
 - server-side enforcement.
 
+## 14. Client Account UX
+
+The client portal should be deliberately simple:
+
+1. Register with name, email, password, consent, and email verification.
+2. Log in with clear error handling and session timeout behavior.
+3. Land on a dashboard with current approved balance, active plan, pending requests, recent reporting snapshots, and
+   document/support shortcuts.
+4. Choose one investment plan from published eligible opportunities.
+5. Submit the plan request after acknowledging risk and non-guarantee language.
+6. View request status as pending, approved, rejected, or cancelled.
+7. View investment growth through approved historical snapshots only.
+
+Dashboard rules:
+
+- show loading, empty, error, and success states;
+- label `current_balance` as "Reported balance" or equivalent, not withdrawable balance;
+- show snapshot date and stale-data notice when data is not current;
+- include a compact chart/table for principal, reported value, growth amount, and growth percent;
+- avoid fake portfolio tiles, fabricated sample values, animated profit emphasis, countdowns, or aggressive crypto visuals.
+
+Admin client-operation screens should use a productivity layout:
+
+- client search and filters;
+- pending plan-request queue;
+- approval/rejection modal with required reason;
+- balance-adjustment form with amount, type, source reference, effective date, and reason;
+- reporting-snapshot form with methodology note and approval confirmation;
+- audit timeline on the client detail view.
+
+Client frontend flow:
+
+```text
+Public Header Client Login
+  -> /client/login
+  -> /client/register when account creation is needed
+  -> Email verification
+  -> Protected /client dashboard
+  -> /client/plans
+  -> Plan request confirmation
+  -> Dashboard status and notifications
+```
+
+Client dashboard design:
+
+- topbar with client name/status, support link, and logout;
+- summary band with reported balance, active plan, and latest snapshot date;
+- main panel with growth chart plus accessible table values;
+- secondary panel with pending requests, documents, and notifications;
+- persistent risk/non-guarantee note near reported balance and growth data;
+- clear empty state for new clients with a single `Select Plan` action.
+
+Client auth design:
+
+- `/client/register` uses name, email, password, password confirmation, consent, and submit;
+- `/client/login` uses email, password, forgot-password link, and create-account link;
+- both forms need labels, inline errors, submit loading state, duplicate-submit prevention, success state, and safe generic
+  authentication errors;
+- client auth state must be separate from admin auth state.
+
 ---
 
-# 14. Responsive Rules
+## 15. Responsive Rules
 
 Mobile-first breakpoints.
 
 Navigation:
+
 - desktop mega/simple dropdown where needed;
 - mobile drawer;
 - keyboard accessible.
 
 Cards:
+
 - one column mobile;
 - two columns tablet;
 - three/four as appropriate desktop.
 
 Admin:
+
 - collapsible sidebar;
 - horizontally scrollable tables only as last resort;
 - stacked mobile record views where useful.
 
 ---
 
-# 15. Accessibility
+## 16. Accessibility
 
 Implement:
+
 - semantic headings;
 - proper landmarks;
 - skip navigation;
@@ -348,7 +472,7 @@ Implement:
 
 ---
 
-# 16. SEO Architecture
+## 17. SEO Architecture
 
 Every public route should support:
 
@@ -363,10 +487,12 @@ Every public route should support:
 - JSON-LD where relevant.
 
 Generate:
+
 - sitemap.xml;
 - robots.txt.
 
 Use structured data for:
+
 - Organization;
 - Article;
 - BreadcrumbList;
@@ -374,9 +500,10 @@ Use structured data for:
 
 ---
 
-# 17. Performance
+## 18. Performance
 
 Implement:
+
 - responsive images;
 - WebP/AVIF where supported by pipeline;
 - lazy loading;
@@ -388,35 +515,46 @@ Implement:
 
 ---
 
-# 18. Frontend Testing
+## 19. Frontend Testing
 
-## Unit/Component
+### Unit/Component
+
 Test:
+
 - button/input primitives;
 - investment cards;
 - validation;
 - permission-based rendering;
 - error states.
 
-## Integration
+### Integration
+
 Test:
+
 - form submission;
 - list filters;
 - publication screens;
 - auth behavior.
 
-## E2E
+### E2E
+
 Critical:
+
 - public navigation;
 - contact submission;
 - admin login;
 - create/publish investment;
 - create/publish article;
 - edit legal page.
+- client registration and login;
+- client plan request submission;
+- admin plan approval;
+- admin balance/reporting snapshot update;
+- client dashboard growth display.
 
 ---
 
-# 19. Frontend Delivery Workflow
+## 20. Frontend Delivery Workflow
 
 For each feature:
 

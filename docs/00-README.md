@@ -14,7 +14,9 @@ PerrymanFinance is a financial services, securities, digital asset investment, a
 - capture qualified enquiries, consultation requests, and onboarding-intake requests;
 - provide strong legal, privacy, and risk-disclosure foundations;
 - allow authorized administrators to manage public website content;
-- preserve a clear architecture path for secure client-account and reporting capabilities.
+- preserve a clear architecture path for secure client-account and reporting capabilities;
+- support a formally approved, simple client-account portal where clients can create an account, log in securely,
+  request an investment plan, and view admin-approved investment reporting snapshots.
 
 The MVP should represent PerrymanFinance as an operational financial platform. It must avoid unverified claims about licenses, registrations, partnerships, AUM, performance, custody, brokerage execution, payments, wallets, or guaranteed returns unless those capabilities and approvals are formally added.
 
@@ -32,6 +34,7 @@ The MVP should represent PerrymanFinance as an operational financial platform. I
 8. [Copilot-Ready Implementation Prompts](./08-copilot-ready-prompts.md)
 9. [Post-Launch Engineering Review](./17-post-launch-engineering-review.md)
 10. [Client Account Architecture Discovery](./18-client-account-architecture-discovery.md)
+11. [Client Account Implementation Structure](./19-client-account-implementation-structure.md)
 
 ---
 

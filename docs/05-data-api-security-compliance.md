@@ -1,8 +1,9 @@
 # PerrymanFinance — Data, API, Security & Compliance
 
-# 1. Database Standards
+## 1. Database Standards
 
 Use:
+
 - MySQL InnoDB;
 - utf8mb4;
 - foreign keys;
@@ -12,6 +13,7 @@ Use:
 - soft deletion only where business value exists.
 
 Every table should have:
+
 - primary key;
 - sensible unique constraints;
 - indexes supporting real queries;
@@ -19,9 +21,9 @@ Every table should have:
 
 ---
 
-# 2. Suggested Relationships
+## 2. Suggested Relationships
 
-## Migration implementation
+### Migration implementation
 
 The initial schema is installed by ordered migrations under `backend/database/migrations`. Applied names, batches, and
 UTC execution timestamps are recorded in `schema_migrations`. The runner wraps each migration in a transaction when
@@ -63,7 +65,7 @@ A polymorphic SEO association is possible, but explicit relationships are easier
 
 ---
 
-# 3. Pagination Contract
+## 3. Pagination Contract
 
 Request:
 
@@ -90,7 +92,7 @@ Cap `per_page` server-side.
 
 ---
 
-# 4. Filtering and Sorting
+## 4. Filtering and Sorting
 
 Whitelist sortable/filterable fields.
 
@@ -98,11 +100,12 @@ Never interpolate arbitrary user-provided column names directly into SQL.
 
 ---
 
-# 5. Validation
+## 5. Validation
 
 Validation must occur server-side.
 
 Common rules:
+
 - required;
 - string;
 - length;
@@ -120,9 +123,9 @@ Frontend validation improves UX but does not replace backend validation.
 
 ---
 
-# 6. Security Model
+## 6. Security Model
 
-## Admin identity implementation
+### Admin identity implementation
 
 The admin API uses a short-lived HMAC-SHA-256 access token in the `Authorization: Bearer` header and a rotating,
 opaque refresh token in a `Secure`, `HttpOnly`, `SameSite=Strict` cookie scoped to `/api/v1/admin/auth`. Access tokens
@@ -145,7 +148,8 @@ Password reset delivery uses the host PHP mail transport in this phase; configur
 provider's delivery setup and set `FRONTEND_URL` before production. Responses never contain reset tokens and unknown accounts receive the
 same response as known accounts.
 
-## Authentication
+### Authentication
+
 - secure password hashing;
 - access token expiration;
 - refresh rotation;
@@ -153,29 +157,46 @@ same response as known accounts.
 - reset-token expiration;
 - login throttling.
 
-## Authorization
+### Client Authentication
+
+- keep client identity separate from admin identity;
+- require verified email before account access;
+- strongly prefer MFA before exposing investment reporting or documents;
+- use short-lived access tokens and rotating hashed refresh tokens;
+- throttle registration, login, verification, and password reset;
+- audit login success/failure, verification, password reset, and session revocation;
+- never expose whether an email belongs to an existing account in reset flows.
+
+### Authorization
+
 - deny by default;
 - RBAC permissions;
 - backend enforcement;
 - no trust in hidden frontend controls.
 
-## SQL
+### SQL
+
 - PDO prepared statements;
 - no concatenated user input.
 
-## XSS
+### XSS
+
 - escape rendered content;
 - sanitize admin rich-text input with allowlists;
 - avoid raw HTML injection.
 
-## CSRF
+### CSRF
+
 If authenticated cookies are used, protect state-changing requests with CSRF tokens and SameSite cookie settings.
 
-## CORS
+### CORS
+
 Whitelist required application origins.
 
-## HTTP Headers
+### HTTP Headers
+
 Set:
+
 - Content-Security-Policy;
 - X-Content-Type-Options;
 - Referrer-Policy;
@@ -185,7 +206,7 @@ Set:
 
 ---
 
-# 7. File Upload Security
+## 7. File Upload Security
 
 The local CMS media implementation accepts decoded JPEG, PNG, and WebP images only. It rejects SVG and all executable
 formats, enforces `MEDIA_MAX_BYTES` and `MEDIA_MAX_DIMENSION`, generates random server filenames, stores files under
@@ -196,6 +217,7 @@ embedded documents, and `javascript:` links.
 The hosting environment therefore requires the PHP Fileinfo and GD extensions in addition to JSON/PDO support.
 
 Requirements:
+
 - max file size;
 - MIME validation using server-side inspection;
 - image decoding;
@@ -208,9 +230,10 @@ Requirements:
 
 ---
 
-# 8. Rate Limiting
+## 8. Rate Limiting
 
 Apply to:
+
 - login;
 - password reset;
 - enquiry;
@@ -222,9 +245,10 @@ Return HTTP 429.
 
 ---
 
-# 9. Secrets
+## 9. Secrets
 
 Store in environment configuration:
+
 - DB credentials;
 - JWT signing secret/private key;
 - SMTP credentials;
@@ -232,16 +256,18 @@ Store in environment configuration:
 - object-storage credentials.
 
 Commit:
+
 - `.env.example`
 
 Never commit:
+
 - `.env`
 - private keys
 - production secrets.
 
 ---
 
-# 10. API Versioning
+## 10. API Versioning
 
 Use:
 
@@ -253,20 +279,39 @@ Breaking changes require a new version or carefully managed migration.
 
 ---
 
-# 11. Idempotency
+## 11. Idempotency
 
 MVP should prevent duplicate public form submissions using:
+
 - disabled UI during submit;
 - server rate limiting;
 - optional idempotency token.
 
 For future financial write operations, idempotency becomes mandatory.
 
+Client-account idempotency is mandatory for:
+
+- client plan-request submission;
+- admin plan approval/rejection;
+- balance adjustment;
+- reporting snapshot publication;
+- document upload/publication;
+- client notification dispatch.
+
+Use scoped uniqueness:
+
+```text
+actor_id + operation_type + idempotency_key
+```
+
+Reject key reuse with a materially different payload.
+
 ---
 
-# 12. Audit Logging
+## 12. Audit Logging
 
 Audit:
+
 - login success/failure where appropriate;
 - user creation/update;
 - role changes;
@@ -293,13 +338,28 @@ created_at
 
 Do not store secrets in snapshots.
 
+Client account audit must additionally capture:
+
+- client registration, verification, login, logout, and password reset;
+- client profile updates;
+- plan request creation, cancellation, approval, and rejection;
+- investment-account activation, pause, close, or status changes;
+- balance adjustment type, amount, currency, source reference, reason, actor, and effective date;
+- reporting snapshot publication, methodology note, source reference, and approving actor;
+- admin access to client records;
+- client document upload, publication, view, and download.
+
+Client financial/reporting audit records must be append-only. Corrections are made through new adjustment or correction
+records, not by silently editing historical entries.
+
 ---
 
-# 13. Privacy
+## 13. Privacy
 
 Collect only necessary personal data.
 
 Enquiry form:
+
 - identify data purpose;
 - record consent if required;
 - define retention policy;
@@ -308,7 +368,7 @@ Enquiry form:
 
 ---
 
-# 14. Financial Communications Guardrails
+## 14. Financial Communications Guardrails
 
 Because the product concerns investment and digital assets:
 
@@ -320,13 +380,23 @@ Because the product concerns investment and digital assets:
 - do not imply regulatory licensing that the company does not hold;
 - all investment descriptions should be administratively editable.
 
+For client dashboards:
+
+- label balances as reported or approved balances, not wallet balances or withdrawable cash;
+- show growth only from approved reporting snapshots or approved imports;
+- do not calculate automatic guaranteed ROI;
+- include the relevant risk and non-guarantee disclosure near plan selection and growth displays;
+- show stale-data warnings when snapshots are older than the configured reporting period;
+- require administrator source references for manual increases, decreases, corrections, and valuation updates.
+
 ---
 
-# 15. Terms, Privacy and Risk Content
+## 15. Terms, Privacy and Risk Content
 
 Legal documents should not be copied blindly from another company.
 
 They must reflect:
+
 - PerrymanFinance's jurisdiction;
 - real operating entity;
 - actual services;
@@ -339,9 +409,10 @@ Use counsel review before production.
 
 ---
 
-# 16. Backup and Recovery
+## 16. Backup and Recovery
 
 Minimum:
+
 - automated DB backups;
 - encrypted storage;
 - retention policy;
@@ -351,7 +422,7 @@ Minimum:
 
 ---
 
-# 17. Security Release Checklist
+## 17. Security Release Checklist
 
 Before launch verify:
 

@@ -1,6 +1,6 @@
 # PerrymanFinance — Backend Architecture & Workflow
 
-# 1. Backend Goals
+## 1. Backend Goals
 
 The backend must provide a secure, maintainable REST API for:
 
@@ -18,7 +18,7 @@ Use a **modular monolith** with strict internal boundaries.
 
 ---
 
-# 2. Request Lifecycle
+## 2. Request Lifecycle
 
 ```text
 HTTP Request
@@ -63,25 +63,31 @@ JSON Response
 
 ---
 
-# 3. Core Framework Components
+## 3. Core Framework Components
 
-## Router
+### Router
+
 Responsibilities:
+
 - method/path matching;
 - parameters;
 - route groups;
 - middleware assignment;
 - named routes where useful.
 
-## DI Container
+### DI Container
+
 Responsibilities:
+
 - constructor dependency resolution;
 - interface bindings;
 - singleton lifecycle for DB/config/logger;
 - factory bindings for integrations.
 
-## Request
+### Request
+
 Expose:
+
 - method;
 - URI;
 - headers;
@@ -91,15 +97,19 @@ Expose:
 - uploaded files;
 - authenticated principal.
 
-## Response
+### Response
+
 Support:
+
 - JSON;
 - status;
 - headers;
 - file streaming where necessary.
 
-## Middleware
+### Middleware
+
 Initial middleware:
+
 - RequestIdMiddleware
 - JsonBodyMiddleware
 - CorsMiddleware
@@ -109,7 +119,7 @@ Initial middleware:
 - PermissionMiddleware
 - AuditContextMiddleware
 
-### Phase 2 implementation notes
+#### Phase 2 implementation notes
 
 The core implementation lives under `backend/app` and is composed in `backend/bootstrap/app.php`. Configuration,
 database connections, the middleware dispatcher, response factory, and logger are container-managed singletons where
@@ -130,24 +140,29 @@ Authentication, authorization, rate limiting, and audit context are intentionall
 
 ---
 
-# 4. Layering Rules
+## 4. Layering Rules
 
-## Controller
+### Controller
+
 Allowed:
+
 - read request;
 - invoke validator/request class;
 - call service;
 - convert result to response.
 
 Forbidden:
+
 - SQL;
 - complex business logic;
 - filesystem manipulation;
 - direct email transport;
 - authorization decisions beyond middleware/policy invocation.
 
-## Service
+### Service
+
 Allowed:
+
 - transactions;
 - business rules;
 - orchestration;
@@ -155,13 +170,16 @@ Allowed:
 - event dispatching;
 - integration calls.
 
-## Repository
+### Repository
+
 Allowed:
+
 - CRUD persistence;
 - query construction;
 - mapping rows to domain/data objects.
 
 Forbidden:
+
 - HTTP concerns;
 - authorization;
 - email;
@@ -169,7 +187,7 @@ Forbidden:
 
 ---
 
-# 5. Authentication Design
+## 5. Authentication Design
 
 For admin API:
 
@@ -183,6 +201,7 @@ For admin API:
 8. Failed attempts are rate-limited.
 
 Use:
+
 - `password_hash()` / `password_verify()`;
 - short-lived access tokens;
 - rotated refresh tokens;
@@ -191,9 +210,18 @@ Use:
 
 If using secure HttpOnly cookies instead of browser storage, implement CSRF protections appropriately.
 
+Admin login route visibility:
+
+- `/admin/login` may exist as a direct staff URL, but it must not be linked from the public header, footer, marketing
+  pages, client pages, sitemap, or public navigation;
+- hiding the admin URL is not a security control, so backend authentication, permission checks, rate limiting, audit, and
+  monitoring remain mandatory;
+- admin and client sessions must be isolated so a client login cannot grant admin access and an admin login cannot act as
+  a client without an explicit audited support/impersonation feature.
+
 ---
 
-# 6. RBAC
+## 6. RBAC
 
 Suggested roles:
 
@@ -231,13 +259,21 @@ settings.manage
 users.manage
 audit.view
 legal.manage
+
+clients.view
+clients.update_status
+client_plans.review
+client_balances.adjust
+client_reports.publish
+client_documents.manage
+client_audit.view
 ```
 
 Authorization must be checked server-side.
 
 ---
 
-# 7. Publishing Workflow
+## 7. Publishing Workflow
 
 Use statuses:
 
@@ -249,6 +285,7 @@ archived
 ```
 
 Applicable to:
+
 - pages;
 - articles;
 - investment opportunities;
@@ -267,13 +304,14 @@ Published
 ```
 
 Record:
+
 - published_at;
 - published_by;
 - updated_by.
 
 ---
 
-# 8. Investment Opportunity Workflow
+## 8. Investment Opportunity Workflow
 
 ```text
 Admin Creates Draft
@@ -307,7 +345,7 @@ No investment transaction, custody, payment, wallet, or client-money accounting 
 
 ---
 
-# 9. Enquiry Workflow
+## 9. Enquiry Workflow
 
 ```text
 Visitor submits form
@@ -340,6 +378,7 @@ optional:
 ```
 
 Fields:
+
 - name;
 - email;
 - phone optional;
@@ -356,9 +395,10 @@ Do not expose internal IDs publicly if avoidable.
 
 ---
 
-# 10. Content Workflow
+## 10. Content Workflow
 
 Page content should support:
+
 - structured page sections;
 - status;
 - preview;
@@ -388,7 +428,7 @@ Validate allowed section types server-side.
 
 ---
 
-# 11. Media Workflow
+## 11. Media Workflow
 
 Upload:
 
@@ -408,6 +448,7 @@ Multipart Request
 Never trust extension alone.
 
 Recommended:
+
 - JPEG;
 - PNG;
 - WebP;
@@ -417,7 +458,7 @@ Prevent executable uploads.
 
 ---
 
-# 12. Transactions
+## 12. Transactions
 
 Use database transactions for operations that change multiple related records, such as:
 
@@ -442,9 +483,10 @@ try {
 
 ---
 
-# 13. Caching
+## 13. Caching
 
 Cache candidates:
+
 - site settings;
 - public pages;
 - investment catalogue;
@@ -459,11 +501,12 @@ Do not introduce Redis until justified; filesystem or application cache may be s
 
 ---
 
-# 14. Logging
+## 14. Logging
 
 Use structured logs.
 
 Recommended context:
+
 - request_id;
 - authenticated_user_id;
 - route;
@@ -475,6 +518,7 @@ Recommended context:
 - app_version.
 
 Never log:
+
 - passwords;
 - access tokens;
 - refresh tokens;
@@ -483,11 +527,12 @@ Never log:
 
 ---
 
-# 15. Background Jobs
+## 15. Background Jobs
 
 MVP can process some operations synchronously, but create an abstraction for jobs.
 
 Candidates:
+
 - email notifications;
 - image optimization;
 - sitemap generation;
@@ -497,10 +542,12 @@ A database-backed queue is sufficient if required initially.
 
 ---
 
-# 16. Backend Testing Strategy
+## 16. Backend Testing Strategy
 
-## Unit
+### Unit
+
 Test:
+
 - validators;
 - policies;
 - services;
@@ -508,15 +555,19 @@ Test:
 - slug generation;
 - permission logic.
 
-## Integration
+### Integration
+
 Test:
+
 - repositories;
 - migrations;
 - DB constraints;
 - transactions.
 
-## Feature/API
+### Feature/API
+
 Test:
+
 - login;
 - permissions;
 - CRUD;
@@ -526,8 +577,10 @@ Test:
 - pagination;
 - not-found behavior.
 
-## Security Tests
+### Security Tests
+
 Include:
+
 - unauthenticated admin access;
 - permission denial;
 - SQL injection payload behavior;
@@ -537,7 +590,7 @@ Include:
 
 ---
 
-# 17. Future Client Portal Boundary
+## 17. Future Client Portal Boundary
 
 When future financial functionality is approved, add modules such as:
 
@@ -554,3 +607,67 @@ Notifications
 Do not retrofit client-money logic into the CMS modules.
 
 Before adding real investment execution, conduct a new architecture/security/compliance review.
+
+## 18. Client Account and Investment Monitoring Workflow
+
+The client account module is a separate bounded module under the modular monolith. It may support simple account
+creation, secure login, plan selection, manual admin approval, and approved growth reporting. It must not implement
+wallets, deposits, withdrawals, brokerage execution, custody, or payment movement.
+
+Client registration:
+
+```text
+Client Submits Registration
+  -> Validate Email, Password, Consent
+  -> Create Disabled/Pending Client User
+  -> Send Email Verification
+  -> Verify Email
+  -> Enable Login
+  -> Audit
+```
+
+Client plan request:
+
+```text
+Client Opens Plans
+  -> Views Published Eligible Investment Opportunities
+  -> Selects Plan and Amount
+  -> Acknowledges Risk Notice and Non-Guarantee Disclaimer
+  -> Request Saved as pending
+  -> Admin Notification
+```
+
+Admin approval:
+
+```text
+Admin Reviews Client, Plan, Risk Acknowledgement, and Supporting Notes
+  -> Approve or Reject with Reason
+  -> Create/Activate ClientInvestmentAccount if Approved
+  -> Record Initial Allocation if Applicable
+  -> Notify Client
+  -> Immutable Audit
+```
+
+Balance adjustment and growth reporting:
+
+```text
+Authorized Admin Opens Client Investment
+  -> Enters Adjustment or Reporting Snapshot
+  -> Provides Source Reference and Reason
+  -> Optional Maker/Checker Approval for Production
+  -> Update Reported Current Balance
+  -> Notify Client of Updated Report
+  -> Immutable Audit
+```
+
+Rules:
+
+- client ownership checks are mandatory for every `/client/*` record access;
+- admin client operations require explicit client-operation permissions, separate from CMS permissions;
+- public frontend navigation must route login/account CTAs to `/client/login` or `/client/register`, never to
+  `/admin/login`;
+- balance changes require reason, source reference, effective date, and request ID;
+- reporting snapshots must preserve history and never silently overwrite prior values;
+- client-facing growth charts must show approved snapshots only and include a non-guarantee disclaimer;
+- all state-changing client financial/reporting operations must be idempotent;
+- sensitive client data must not appear in logs, URLs, public caches, or CMS media.

@@ -1,6 +1,6 @@
 # PerrymanFinance — DevOps, Testing & Deployment
 
-# 1. Environment Strategy
+## 1. Environment Strategy
 
 Use:
 
@@ -13,7 +13,7 @@ Never share production secrets with staging.
 
 ---
 
-# 2. Runtime and Hosting Model
+## 2. Runtime and Hosting Model
 
 Production uses shared Linux hosting. The host must provide:
 
@@ -32,7 +32,7 @@ The frontend is compiled in CI or on a trusted build machine and deployed as sta
 
 ---
 
-# 3. CI Pipeline
+## 3. CI Pipeline
 
 On pull request:
 
@@ -55,7 +55,7 @@ Block merge if required checks fail.
 
 ---
 
-# 4. CD Pipeline
+## 4. CD Pipeline
 
 Staging:
 
@@ -86,9 +86,10 @@ Maintain a rollback procedure based on versioned release directories, atomic sym
 
 ---
 
-# 5. Migration Strategy
+## 5. Migration Strategy
 
 Rules:
+
 - migrations are immutable after deployment;
 - no destructive schema change in the same release as dependent application code if avoidable;
 - deploy expand/migrate/contract for high-risk changes;
@@ -96,24 +97,27 @@ Rules:
 
 ---
 
-# 6. Test Pyramid
+## 6. Test Pyramid
 
-## Backend
+### Backend
+
 - many unit tests;
 - repository/integration tests;
 - API feature tests;
 - small number of end-to-end system tests.
 
-## Frontend
+### Frontend
+
 - component tests;
 - feature integration tests;
 - critical E2E tests.
 
 ---
 
-# 7. Critical Test Cases
+## 7. Critical Test Cases
 
-## Public
+### Public
+
 - all core routes return successfully;
 - contact validation;
 - contact submission;
@@ -123,7 +127,8 @@ Rules:
 - article pagination;
 - 404 page.
 
-## Admin
+### Admin
+
 - valid/invalid login;
 - permission denial;
 - create/update/publish article;
@@ -133,7 +138,8 @@ Rules:
 - enquiry status update;
 - user/role controls.
 
-## Security
+### Security
+
 - invalid token;
 - expired token;
 - revoked token;
@@ -144,21 +150,24 @@ Rules:
 
 ---
 
-# 8. Quality Gates
+## 8. Quality Gates
 
 Backend:
+
 - PSR-12;
 - static analysis threshold;
 - tests green;
 - no critical dependency vulnerability.
 
 Frontend:
+
 - lint clean;
 - type-check clean;
 - test suite green;
 - production build successful.
 
 Application:
+
 - staging smoke test;
 - responsive check;
 - accessibility review;
@@ -167,9 +176,10 @@ Application:
 
 ---
 
-# 9. Observability
+## 9. Observability
 
 Provide:
+
 - `/api/v1/health`;
 - structured application logs;
 - request IDs;
@@ -178,6 +188,7 @@ Provide:
 - uptime checks.
 
 Track:
+
 - HTTP error rates;
 - response time;
 - failed login spikes;
@@ -186,7 +197,7 @@ Track:
 
 ---
 
-# 10. Deployment Configuration
+## 10. Deployment Configuration
 
 Production configuration should include:
 
@@ -203,9 +214,10 @@ Production configuration should include:
 
 ---
 
-# 11. SEO Deployment Tasks
+## 11. SEO Deployment Tasks
 
 Release must include:
+
 - canonical base URL;
 - robots.txt;
 - sitemap.xml;
@@ -217,7 +229,7 @@ Release must include:
 
 ---
 
-# 12. Release Checklist
+## 12. Release Checklist
 
 1. CI green.
 2. Staging accepted.
@@ -236,21 +248,24 @@ Release must include:
 
 ---
 
-# 13. Post-Launch Operations
+## 13. Post-Launch Operations
 
 Weekly:
+
 - review application errors;
 - dependency alerts;
 - failed enquiry notifications;
 - admin activity anomalies.
 
 Monthly:
+
 - restore-test backup sample;
 - performance review;
 - SEO health;
 - access review.
 
 Quarterly:
+
 - dependency upgrades;
 - security review;
 - content/legal review;

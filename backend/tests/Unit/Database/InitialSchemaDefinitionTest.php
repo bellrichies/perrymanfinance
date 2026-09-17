@@ -12,7 +12,7 @@ final class InitialSchemaDefinitionTest extends TestCase
     public function testAllRequiredTablesAreDefinedWithMySqlStorageRequirements(): void
     {
         $directory = dirname(__DIR__, 3) . '/database/migrations';
-        self::assertCount(8, (new MigrationRegistry($directory))->all());
+        self::assertCount(10, (new MigrationRegistry($directory))->all());
         $contents = '';
         foreach (glob($directory . '/*.php') ?: [] as $file) {
             $contents .= (string) file_get_contents($file);
@@ -23,12 +23,16 @@ final class InitialSchemaDefinitionTest extends TestCase
             'legal_documents', 'media_assets', 'site_settings', 'investment_categories',
             'investment_opportunities', 'article_categories', 'articles', 'tags', 'article_tags',
             'faqs', 'enquiries', 'seo_metadata', 'redirects', 'rate_limit_counters',
+            'client_users', 'client_profiles', 'client_email_verification_tokens',
+            'client_password_reset_tokens', 'client_sessions', 'client_plan_requests',
+            'client_investment_accounts', 'client_balance_adjustments',
+            'client_reporting_snapshots', 'client_audit_events',
         ];
         foreach ($tables as $table) {
             self::assertStringContainsString("CREATE TABLE {$table}", $contents);
         }
-        self::assertSame(24, substr_count($contents, 'ENGINE=InnoDB'));
-        self::assertSame(24, substr_count($contents, 'DEFAULT CHARSET=utf8mb4'));
+        self::assertSame(34, substr_count($contents, 'ENGINE=InnoDB'));
+        self::assertSame(34, substr_count($contents, 'DEFAULT CHARSET=utf8mb4'));
         self::assertStringContainsString('DATETIME(6)', $contents);
         self::assertStringContainsString('FOREIGN KEY', $contents);
         self::assertStringContainsString('UNIQUE KEY', $contents);

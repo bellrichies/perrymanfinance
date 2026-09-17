@@ -21,6 +21,8 @@ final class ReferenceDataSeeder implements Seeder
             'investments.archive', 'articles.view', 'articles.create', 'articles.update',
             'articles.publish', 'articles.archive', 'faqs.manage', 'enquiries.view', 'enquiries.update',
             'media.manage', 'settings.manage', 'users.manage', 'audit.view', 'legal.manage',
+            'clients.view', 'clients.update_status', 'client_plans.review', 'client_balances.adjust',
+            'client_reports.publish', 'client_documents.manage', 'client_audit.view',
         ];
         $roleStatement = $connection->prepare(
             'INSERT INTO roles (name, label, description, created_at, updated_at) '
