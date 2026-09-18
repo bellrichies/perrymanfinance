@@ -65,7 +65,8 @@ describe('client account pages', () => {
 
     expect(await screen.findByRole('heading', { name: /welcome, ada client/i })).toBeInTheDocument();
     expect(screen.queryByText(/not wallets/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/not a guarantee of future returns/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/not cash balances, payment facilities, forecasts, or guaranteed returns/i)).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Contact Support' })).toHaveAttribute('href', '/contact');
     expect(screen.getAllByText(/managed income/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/1,125.50 USD/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/12.5500%/i)).toBeInTheDocument();

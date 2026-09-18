@@ -41,3 +41,25 @@ describe('admin authentication', () => {
     expect(await screen.findByRole('button', { name: /about/i })).toHaveTextContent('draft');
   });
 });
+
+describe('client authentication', () => {
+  it('restores a valid client session on direct protected route loads without changing the current URL', async () => {
+    window.history.replaceState({}, '', '/client/plans');
+    const user = { uuid: 'client-1', email: 'client@example.test', status: 'active', email_verified_at: '2026-09-13', profile: { first_name: 'Ada', last_name: 'Client' } };
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.endsWith('/client/auth/refresh')) {
+        return new Response(JSON.stringify({ success: true, data: { user, access_token: 'client-access', token_type: 'Bearer', expires_in: 900 }, meta: {}, message: null }), { status: 200 });
+      }
+      if (url.endsWith('/client/plans')) {
+        return new Response(JSON.stringify({ success: true, data: [], meta: {}, message: null }), { status: 200 });
+      }
+      return new Response(JSON.stringify({ success: false, error: { message: 'Unexpected request', fields: {} } }), { status: 404 });
+    }));
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    render(<QueryClientProvider client={queryClient}><App /></QueryClientProvider>);
+
+    expect(await screen.findByRole('heading', { name: 'Select Plan' })).toBeInTheDocument();
+    expect(window.location.pathname).toBe('/client/plans');
+  });
+});

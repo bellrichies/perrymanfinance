@@ -8,6 +8,7 @@ Options -Indexes
     RewriteCond %{REQUEST_FILENAME} -d
     RewriteRule ^ - [L]
     RewriteRule ^admin(/.*)?$ /index.html [L]
+    RewriteRule ^client(/.*)?$ /index.html [L]
     RewriteRule ^(about|investment-solutions|digital-assets|wealth-management|how-it-works|investments|insights|faq|contact|terms|privacy-policy|risk-disclosure|cookie-policy)(/.*)?$ /index.html [L]
 </IfModule>
 
